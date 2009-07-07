@@ -5,6 +5,7 @@ import time
 import math
 from gimpfu import *
 import rwkos
+import pdb as Pdb
 
 graph_path = '/home/ryan/siue/classes/452/graph_paper.png'
 lecture_base = '/home/ryan/siue/classes/452/lectures'
@@ -55,11 +56,11 @@ def get_notes_layer_slide_num(img, name='Notes Layer'):
     layer_name = img.layers[ind].name
     N = len(name)
     rest = layer_name[N:]
-    print('rest:'+rest)
+    #print('rest:'+rest)
     rest = rest.strip()
     if rest:
         myint = int(rest)
-        print('myint:%i'%myint)
+        #print('myint:%i'%myint)
         return myint
     else:
         return None
@@ -142,7 +143,7 @@ def new_grid_image(pat=None, footer='', footer_x=1900):#timg, tdrawable):
     gimp.displays_flush()
     pdb.gimp_image_clean_all(img)
     title_in = img.filename
-    print('title_in=%s' % title_in)
+    #print('title_in=%s' % title_in)
     move_resize_window()
     
     
@@ -351,7 +352,7 @@ def my_save(img, drawable):
         myint = get_notes_layer_slide_num(img)
         new_name, slide_num = get_slide_num_filename(myint=myint)
         filename = save_as(initialdir=folder, initialfile=new_name)
-        print('filename = ' + filename)
+        #print('filename = ' + filename)
         if filename:
             pne, ext = os.path.splitext(filename)
             xcf_path = pne+'.xcf'
@@ -379,7 +380,7 @@ register(
 
 
 def my_save2(img, drawable):
-    print('in my_save2')
+    #print('in my_save2')
     ind = find_graph_ind(img)
 
     if ind:
@@ -387,25 +388,25 @@ def my_save2(img, drawable):
         folder = get_date_folder()
         myint = get_notes_layer_slide_num(img)
         title_in = img.filename
-        print('title_in = %s' % title_in)
+        #print('title_in = %s' % title_in)
         new_name = None
         if title_in:
             folder_in, name_in = os.path.split(title_in)
             fno, ext = os.path.splitext(name_in)
             name_in = fno + '.png'
-            print('name_in = %s' % name_in)
-            print('folder_in = %s' % folder_in)
+            #print('name_in = %s' % name_in)
+            #print('folder_in = %s' % folder_in)
             my_ind = name_in.find('ME452')
-            print('my_ind = %s' % my_ind)
+            #print('my_ind = %s' % my_ind)
             if my_ind == 0:
-                print('in the good case')
+                #print('in the good case')
                 folder = folder_in
                 new_name = name_in
-        print('new_name = %s' % new_name)
+        #print('new_name = %s' % new_name)
         if new_name is None:
             new_name, slide_num = get_slide_num_filename(myint=myint)
         filename = save_as(initialdir=folder, initialfile=new_name)
-        print('filename = ' + filename)
+        #print('filename = ' + filename)
         if filename:
             pne, ext = os.path.splitext(filename)
             xcf_path = pne+'.xcf'
@@ -416,9 +417,9 @@ def my_save2(img, drawable):
             folder, xcf_name = os.path.split(xcf_path)
             xcf_path = xcf_path.encode()
             xcf_name = xcf_name.encode()
-            print('xcf_name='+xcf_name)
-            print('type(img.filename)=%s' % type(img.filename))
-            print('type(xcf_name)=%s' % type(xcf_name))
+            #print('xcf_name='+xcf_name)
+            #print('type(img.filename)=%s' % type(img.filename))
+            #print('type(xcf_name)=%s' % type(xcf_name))
             img.filename = xcf_path
             #pdb.gimp_file_save(img, drawable, xcf_path, xcf_path)
             flat_layer = pdb.gimp_image_flatten(img2)
@@ -454,7 +455,7 @@ def save_quiz(img, drawable):
         img.layers[ind].visible = False
 
     title_in = img.filename
-    print('title_in = %s' % title_in)
+    #print('title_in = %s' % title_in)
     if title_in:
         cur_folder, cur_name = os.path.split(title_in)
         if cur_name.find('quiz_') == 0:
@@ -462,7 +463,7 @@ def save_quiz(img, drawable):
             folder = cur_folder
     filename = save_as_jpg(initialdir=folder, initialfile=new_name)
     filename = filename.encode()
-    print('filename = ' + filename)
+    #print('filename = ' + filename)
 
     if filename:
         flat_layer = pdb.gimp_image_flatten(img)
@@ -487,7 +488,7 @@ register(
 
 
 def batch_xcf_to_png(file_pattern):
-	print('pattern='+file_pattern)
+	#print('pattern='+file_pattern)
 	file_list=glob.glob(file_pattern)
 	file_list.sort()
 	for filename in file_list:
@@ -527,7 +528,7 @@ def my_open(dialog_func=open_xcf):
     img = pdb.gimp_file_load(filename, filename)
     ind = find_graph_ind(img)
     title_in = img.filename
-    print('title_in=%s' % title_in)
+    #print('title_in=%s' % title_in)
     if ind:
         img.layers[ind].visible = True
 

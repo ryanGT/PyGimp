@@ -7,7 +7,8 @@ import math
 from gimpfu import *
 import rwkos
 
-from xdotool import windows_with_str_in_title, activate_window
+from xdotool import windows_with_str_in_title, activate_window, \
+     get_active_window_id, save_active_window_id
 
 import latex_dvi_png
 cache_dir = latex_dvi_png.find_cache_dir()
@@ -19,7 +20,7 @@ def get_upper_left_selection(img, drawable):
     bounds = pdb.gimp_selection_bounds(img)
     ints = [int(item) for item in bounds]
     my_bool, x1, y1, x2, y2 = ints
-    print('bounds=' + str(ints))
+    #print('bounds=' + str(ints))
     if my_bool:
         save_offsets_to_file(x1, y1)
         return x1, y1
@@ -41,6 +42,7 @@ register(
         get_upper_left_selection)
 
 def initialize_Latex_paste_temp(img, drawable):
+    save_active_window_id()
     x, y = get_upper_left_selection(img, drawable)
     if (x is not None) and top_layer_is_TEMP(img):
         pdb.gimp_image_merge_down(img, img.layers[0], 0)
@@ -63,6 +65,7 @@ register(
 
 
 def initialize_Latex_paste_temp_w_vert_offset(img, drawable, dy=250):
+    save_active_window_id()
     x, y = load_offsets_from_file()
     if x is None or y is None:
         print('failed to load old coordinates')
@@ -90,7 +93,7 @@ register(
 
     
 def save_offsets_to_file(x_offset, y_offset):
-    print('saving %s %s to %s' % (x_offset, y_offset, offset_path))
+    #print('saving %s %s to %s' % (x_offset, y_offset, offset_path))
     f = open(offset_path, 'wb')
     f.write('%s %s\n' % (x_offset, y_offset))
     f.close()
@@ -117,7 +120,7 @@ def create_Latex_TEMP_layer(img, drawable):
                              RGBA_IMAGE, 100, NORMAL_MODE)
     pdb.gimp_drawable_fill(trans_layer, TRANSPARENT_FILL)
     img.add_layer(trans_layer)
-    print('layer[0].name=%s' % img.layers[0].name)
+    #print('layer[0].name=%s' % img.layers[0].name)
 
 register(
         "create_Latex_TEMP_layer",
@@ -160,12 +163,13 @@ register("openemacs", \
 def launch_wxPython_app():
     """Launch or activate latex_eqn_preview_wx.py"""
     id_list = windows_with_str_in_title("'Latex Equation Preview'")
-    print('id_list=%s' % id_list)
+    #print('id_list=%s' % id_list)
     if id_list[0]:
-        print('found window and activating')
+        #print('found window and activating')
         activate_window(id_list[0])
     else:
-        cmd = 'latex_eqn_preview_wx.py'
+        cmd = 'latex_eqn_preview_wx.py 1'#the 1 is for headless
+                                         #operation
         os.system(cmd)
     
 
@@ -190,7 +194,7 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
     max_w = w-50
     if x_offset is not None:
         max_w -= x_offset
-    print('max_w=%s' % max_w)
+    #print('max_w=%s' % max_w)
     if img2.width > max_w:
         ar = float(img2.height)/float(img2.width)
         new_h = max_w*ar
@@ -199,8 +203,8 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
     #gimp.Display(img2)
     width = img.width
     height = img.height
-    print('width = %s' % width)
-    print('height = %s' % height)
+    #print('width = %s' % width)
+    #print('height = %s' % height)
     if top_layer_is_TEMP(img):
         trans_layer = img.layers[0]
     else:
@@ -222,18 +226,30 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
     return float_layer
 
 def paste_eqn_with_offests_and_clear(img, drawable):
+    #t1 = time.time()
     x, y = load_offsets_from_file()
     if x == -1:
         x = None
     if y == -1:
         y = None
+    #t2 = time.time()
     if top_layer_is_TEMP(img):
         pdb.gimp_edit_clear(img.layers[0])
+    #t3 = time.time()
     png_path = latex_dvi_png.find_png_name()
+    #t4 = time.time()
     pdb.gimp_selection_clear(img)
+    #t5 = time.time()
     floating_sel = copy_png_to_img(png_path, img, x_offset=x, y_offset=y)
+    #t6 = time.time()
     if top_layer_is_TEMP(img, 1) and (x is not None) and (y is not None):
         pdb.gimp_floating_sel_anchor(floating_sel)
+    #t7 = time.time()
+##     for i in range(1, 7):
+##         cur_diff = 't%s-t%s' % (i+1, i)
+##         exec('cur_t = '+cur_diff)
+##         print(cur_diff + '=%s' % cur_t)
+    #print('In GIMP, t7-t1=%s' %(t7-t1))
 
 register(
         "paste_eqn_with_offests_and_clear",
