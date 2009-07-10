@@ -19,7 +19,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Tutorials/_Eraser Python",
+        "<Image>/Filters/Ryan/Brushes/_Eraser Python",
         "RGB*, GRAY*",
         [],
         [],
@@ -39,10 +39,30 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Tutorials/_Pen Python",
+        "<Image>/Filters/Ryan/Brushes/_Pen Python",
         "RGB*, GRAY*",
         [],
         [],
         my_py_pen)
+
+
+def my_dashed_pen(timg, tdrawable):
+    pdb.gimp_brushes_set_brush("Dashed")
+    pcmd = "xdotool key P"
+    time.sleep(0.4)
+    os.system(pcmd)
+
+register(
+        "my_dashed_pen",
+        "Setting the pen to dashed from PyGimp", 
+        "Setting the pen to dashed from PyGimp",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Image>/Filters/Ryan/Brushes/_Dashed Python Pen",
+        "RGB*, GRAY*",
+        [],
+        [],
+        my_dashed_pen)
 
 main()
