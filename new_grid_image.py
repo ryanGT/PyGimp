@@ -7,34 +7,77 @@ from gimpfu import *
 import rwkos
 import pdb as Pdb
 
-graph_path = '/home/ryan/siue/classes/452/graph_paper.png'
-lecture_base = '/home/ryan/siue/classes/452/lectures'
+Linux = rwkos.amiLinux()
 
+##graph_path = '/home/ryan/siue/classes/graph_paper.png'
+## classes_base = '/home/ryan/siue/classes'
+## keys = ['452','mechatronics','482','484','356','mobile_robotics']
+## nums = ['452','458','482','484','356','492']
+## course_num_dict = dict(zip(keys, nums))
 
-def get_date_str():
-    date_str = time.strftime('%m_%d_%y')
-    return date_str
+## bases = ['452/lectures', 'mechatronics/2009/lectures', '482/2009/lectures', \
+##          '484/lectures', '356/Fall_2009/lectures', \
+##          'mobile_robotics/2009/lectures']
+## base_dict = dict(zip(keys, bases))
 
+## curdir = os.getcwd()
+## log_msg('curdir = %s' % curdir)
 
-def get_date_folder():
-    date_str = get_date_str()
-    folder = os.path.join(lecture_base, date_str)
-    return folder
+import pygimp_lecture_utils
+from pygimp_lecture_utils import set_lecture_path, get_course_number, \
+     get_path_from_pkl, graph_path, get_date_for_slide, get_slide_num_filename, \
+     log_msg
 
+## def get_course_key_from_curdir():
+##     curdir = os.getcwd()
+##     #log_msg('curdir = %s' % curdir)
+##     for key in keys:
+##         if curdir.find('/' + key +'/') > -1:
+##             return key
+##     log_msg('could not find any of %s \n' % keys)
+##     log_msg('in curdir %s' % curdir)
     
-def get_slide_num_filename(myint=None, pat=None):
-    date_str = get_date_str()
-    folder = get_date_folder()
-    if not os.path.exists(folder):
-        os.mkdir(folder)
-    if pat is None:
-        pat = 'ME452_'+date_str+'_%0.4d.png'
-    if myint is None:
-        new_ind = rwkos.get_new_file_number(pat, folder)
-    else:
-        new_ind = myint
-    new_name = pat % new_ind
-    return new_name, new_ind
+## def get_lecture_base():
+##     key = get_course_key_from_curdir()
+##     if key:
+##         base = base_dict[key]
+##         lecture_base = os.path.join(classes_base, base)
+##         return lecture_base
+
+## def get_course_number():
+##     key = get_course_key_from_curdir()
+##     if key:
+##         cn = course_num_dict[key]
+##         return cn
+    
+#lb = get_lecture_base()
+#log_msg('lecture_base = %s' % lb)
+
+## def get_cur_date_str():
+##     date_str = time.strftime('%m_%d_%y')
+##     return date_str
+
+## def get_date_from_path():
+##     curdir = os.getcwd()
+##     p = re.compile('/lectures/(\d+_\d+_\d+)')
+##     q = p.search(curdir)
+##     if q:
+##         #q.group(1).split('_',2)
+##         return q.group(1)
+##     else:
+##         return None
+
+## def get_date_str():
+##     date_str = get_date_from_path()
+##     if not date_str:
+##         date_str = get_cur_date_str()
+##     return date_str
+
+## def get_date_folder():
+##     date_str = get_date_str()
+##     lecture_base = get_lecture_base()
+##     folder = os.path.join(lecture_base, date_str)
+##     return folder
 
 
 def find_graph_ind(img, name='graph_paper.png'):
@@ -56,11 +99,11 @@ def get_notes_layer_slide_num(img, name='Notes Layer'):
     layer_name = img.layers[ind].name
     N = len(name)
     rest = layer_name[N:]
-    #print('rest:'+rest)
+    #log_msg('rest:'+rest)
     rest = rest.strip()
     if rest:
         myint = int(rest)
-        #print('myint:%i'%myint)
+        log_msg('myint:%i'%myint)
         return myint
     else:
         return None
@@ -72,18 +115,19 @@ def activate_notes_layer(img, name="Notes Layer"):
 
 
 def move_resize_window():#timg, tdrawable):
-    import subprocess
-    p = subprocess.Popen(['xdotool','getactivewindow'], \
-                         stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    output, errors = p.communicate()
-    win = output.strip()#get id of active window
-    movecmd = 'xdotool windowmove %s 250 0' % win
-    os.system(movecmd)
-    sizecmd = 'xdotool windowsize %s 1150 950' % win
-    os.system(sizecmd)
-    ecmd = "xdotool key ctrl+shift+E"
-    time.sleep(0.7)
-    os.system(ecmd)
+    if Linux:
+        import subprocess
+        p = subprocess.Popen(['xdotool','getactivewindow'], \
+                             stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output, errors = p.communicate()
+        win = output.strip()#get id of active window
+        movecmd = 'xdotool windowmove %s 250 0' % win
+        os.system(movecmd)
+        sizecmd = 'xdotool windowsize %s 1150 950' % win
+        os.system(sizecmd)
+        ecmd = "xdotool key ctrl+shift+E"
+        time.sleep(0.7)
+        os.system(ecmd)
     
 
 register(
@@ -122,11 +166,12 @@ def new_grid_image(pat=None, footer='', footer_x=1900):#timg, tdrawable):
     img.add_layer(trans_layer)
 
     img.active_layer = trans_layer
-    date_str = get_date_str()
+    date_str = get_date_for_slide()
     date_str = date_str.replace('_','/')
     pdb.gimp_context_set_foreground((0,0,0))
+    cn = get_course_number()
     text_layer = pdb.gimp_text_fontname(img, trans_layer, 1725, 10, \
-                                        "ME 452\n%s" % date_str, \
+                                        "ME %s\n%s" % (cn, date_str), \
                                         0, True, 50, 1, "Sans")
 
     pdb.gimp_floating_sel_anchor(text_layer)
@@ -134,33 +179,48 @@ def new_grid_image(pat=None, footer='', footer_x=1900):#timg, tdrawable):
     text_layer2 = pdb.gimp_text_fontname(img, trans_layer, footer_x, 1520, \
                                          footer+str(slide_num), \
                                          0, True, 50, 1, "Sans")
-    
+
+
     pdb.gimp_floating_sel_anchor(text_layer2)
     #pdb.gimp_selection_all(img)
     #pdb.gimp_edit_clear(trans_layer)
-    
+
+
     gimp.Display(img)
     gimp.displays_flush()
     pdb.gimp_image_clean_all(img)
     title_in = img.filename
-    #print('title_in=%s' % title_in)
+    #log_msg('title_in=%s' % title_in)
     move_resize_window()
+    return img
     
     
-register(
-        "new_grid_image",
-        "A new image for class lectures",
-        "A new image for class lectures",
-        "Ryan Krauss",
-        "Ryan Krauss",
-        "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/_New Grid Image",
-        "",#RGB*, GRAY*",
-        [],
-        [],
-        new_grid_image)
+register("new_grid_image",
+         "A new image for class lectures",
+         "A new image for class lectures",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2009",
+         "<Toolbox>/Xtns/Languages/Ryan/_New Grid Image",
+         "",#RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         new_grid_image)
 
 
+register("set_lecture_path", \
+         "Set the path for todays lectures", \
+         "Set the path for todays lectures saving it in a pkl", \
+         "Ryan Krauss", \
+         "Ryan Krauss", \
+         "2009", \
+         "<Toolbox>/Xtns/Languages/Ryan/Set Lecture Path", \
+         "", \
+         [], \
+         [], \
+         set_lecture_path)
+
+         
 import tkFileDialog
 filetypes = [('png files', '*.png'), ('jpg files', '*.jpg'),\
              ('all files', '.*')]
@@ -173,7 +233,7 @@ import tk_simple_dialog
 #?tkSimpleDialog.askinteger?
 
 def get_quiz_solution_number():
-    myfolder = get_date_folder()
+    myfolder = get_path_from_pkl()
     mypaths = rwkos.Find_in_top_and_sub_dirs(myfolder, 'quiz_*')
     qn = None
     if mypaths:
@@ -188,22 +248,23 @@ def get_quiz_solution_number():
         W = tk_simple_dialog.myWindow()
         qn_str = W.var.get()
         qn = int(qn_str)
-##     print('qn_str = %s' % qn_str)
-##     print('type(qn_str) = %s' % type(qn_str))
-##     print('qn = %s' % qn)
-##     print('type(qn) = %s' % type(qn))
+##     log_msg('qn_str = %s' % qn_str)
+##     log_msg('type(qn_str) = %s' % type(qn_str))
+##     log_msg('qn = %s' % qn)
+##     log_msg('type(qn) = %s' % type(qn))
     return qn
 
     
-def get_quiz_solution_pattern():
-    qn = get_quiz_solution_number()
+def get_quiz_solution_pattern(qn=None):
+    if qn is None:
+        qn = get_quiz_solution_number()
     pat = 'quiz_%0.2d_solution' % qn + '_%0.4d.jpg'
     return pat
 
 
 def get_quiz_solution_filename():
     pat = get_quiz_solution_pattern()
-    folder = get_date_folder()    
+    folder = get_path_from_pkl()    
     new_ind = rwkos.get_new_file_number(pat, folder)
     new_name = pat % new_ind
     return new_name#, new_ind
@@ -214,7 +275,7 @@ def new_quiz_solution_page():
     #new_grid_image(pat=pat, footer=footer)
     qn = get_quiz_solution_number()
     footer = 'Quiz %d Solution ' % qn
-    pat = get_quiz_solution_pattern()
+    pat = get_quiz_solution_pattern(qn)
     new_grid_image(pat=pat, footer=footer, footer_x=1500)
     
 
@@ -348,11 +409,11 @@ def my_save(img, drawable):
 
     if ind:
         img.layers[ind].visible = False
-        folder = get_date_folder()
+        folder = get_path_from_pkl()
         myint = get_notes_layer_slide_num(img)
         new_name, slide_num = get_slide_num_filename(myint=myint)
         filename = save_as(initialdir=folder, initialfile=new_name)
-        #print('filename = ' + filename)
+        #log_msg('filename = ' + filename)
         if filename:
             pne, ext = os.path.splitext(filename)
             xcf_path = pne+'.xcf'
@@ -380,33 +441,36 @@ register(
 
 
 def my_save2(img, drawable):
-    #print('in my_save2')
+    #log_msg('in my_save2')
     ind = find_graph_ind(img)
 
     if ind:
         img.layers[ind].visible = False
-        folder = get_date_folder()
+        folder = get_path_from_pkl()
+        log_msg('folder='+str(folder))
         myint = get_notes_layer_slide_num(img)
+        log_msg('myint='+str(myint))
         title_in = img.filename
-        #print('title_in = %s' % title_in)
+        log_msg('title_in = %s' % title_in)
         new_name = None
         if title_in:
             folder_in, name_in = os.path.split(title_in)
             fno, ext = os.path.splitext(name_in)
             name_in = fno + '.png'
-            #print('name_in = %s' % name_in)
-            #print('folder_in = %s' % folder_in)
-            my_ind = name_in.find('ME452')
-            #print('my_ind = %s' % my_ind)
+            #log_msg('name_in = %s' % name_in)
+            #log_msg('folder_in = %s' % folder_in)
+            cn = get_course_number()
+            my_ind = name_in.find('ME'+cn)
+            #log_msg('my_ind = %s' % my_ind)
             if my_ind == 0:
-                #print('in the good case')
+                #log_msg('in the good case')
                 folder = folder_in
                 new_name = name_in
-        #print('new_name = %s' % new_name)
+        #log_msg('new_name = %s' % new_name)
         if new_name is None:
             new_name, slide_num = get_slide_num_filename(myint=myint)
         filename = save_as(initialdir=folder, initialfile=new_name)
-        #print('filename = ' + filename)
+        #log_msg('filename = ' + filename)
         if filename:
             pne, ext = os.path.splitext(filename)
             xcf_path = pne+'.xcf'
@@ -417,9 +481,9 @@ def my_save2(img, drawable):
             folder, xcf_name = os.path.split(xcf_path)
             xcf_path = xcf_path.encode()
             xcf_name = xcf_name.encode()
-            #print('xcf_name='+xcf_name)
-            #print('type(img.filename)=%s' % type(img.filename))
-            #print('type(xcf_name)=%s' % type(xcf_name))
+            #log_msg('xcf_name='+xcf_name)
+            #log_msg('type(img.filename)=%s' % type(img.filename))
+            #log_msg('type(xcf_name)=%s' % type(xcf_name))
             img.filename = xcf_path
             #pdb.gimp_file_save(img, drawable, xcf_path, xcf_path)
             flat_layer = pdb.gimp_image_flatten(img2)
@@ -446,7 +510,7 @@ register(
 
 
 def save_quiz(img, drawable):
-    folder = get_date_folder()
+    folder = get_path_from_pkl()
     new_name = get_quiz_solution_filename()
 
     ind = find_graph_ind(img)
@@ -455,7 +519,7 @@ def save_quiz(img, drawable):
         img.layers[ind].visible = False
 
     title_in = img.filename
-    #print('title_in = %s' % title_in)
+    #log_msg('title_in = %s' % title_in)
     if title_in:
         cur_folder, cur_name = os.path.split(title_in)
         if cur_name.find('quiz_') == 0:
@@ -463,7 +527,7 @@ def save_quiz(img, drawable):
             folder = cur_folder
     filename = save_as_jpg(initialdir=folder, initialfile=new_name)
     filename = filename.encode()
-    #print('filename = ' + filename)
+    #log_msg('filename = ' + filename)
 
     if filename:
         flat_layer = pdb.gimp_image_flatten(img)
@@ -488,20 +552,20 @@ register(
 
 
 def batch_xcf_to_png(file_pattern):
-	#print('pattern='+file_pattern)
+	#log_msg('pattern='+file_pattern)
 	file_list=glob.glob(file_pattern)
 	file_list.sort()
 	for filename in file_list:
-		#print('filename='+filename)
+		#log_msg('filename='+filename)
 		img = pdb.gimp_file_load(filename, filename)
                 ind = find_graph_ind(img)
-                #print('ind='+str(ind))
+                #log_msg('ind='+str(ind))
                 if ind:
                     img.layers[ind].visible = False
                     pne, ext = os.path.splitext(filename)
                     png_path = pne+'.png'
                     flat_layer = pdb.gimp_image_flatten(img)
-                    print('%s --> %s' % (filename, png_path))
+                    log_msg('%s --> %s' % (filename, png_path))
                     pdb.gimp_file_save(img, flat_layer, png_path, png_path)  
 ##                     pdb.file_png_save(img, flat_layer, png_path, png_path, \
 ##                                       0, 9, 0, 0, 0, \
@@ -522,13 +586,13 @@ register(
 
 
 def my_open(dialog_func=open_xcf):
-    folder = get_date_folder()
+    folder = get_path_from_pkl()
     filename = dialog_func(initialdir=folder)
     #img = pdb.gimp_file_load(1, filename, filename)
     img = pdb.gimp_file_load(filename, filename)
     ind = find_graph_ind(img)
     title_in = img.filename
-    #print('title_in=%s' % title_in)
+    #log_msg('title_in=%s' % title_in)
     if ind:
         img.layers[ind].visible = True
 

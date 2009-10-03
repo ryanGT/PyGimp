@@ -188,6 +188,9 @@ register("latex_eqn_preview_wx", \
 def top_layer_is_TEMP(img, ind=0):
     return bool(img.layers[ind].name.find(temp_name) == 0)
 
+def top_layer_is_Latex(img, ind=0, name='Latex'):
+    return bool(img.layers[ind].name.find(name) == 0)
+
 def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
     img2 = pdb.gimp_file_load(png_path, png_path)
     w = img.width
@@ -224,6 +227,61 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
         time.sleep(0.1)
         os.system(mcmd)
     return float_layer
+
+
+def load_outline_png():
+    img = pdb.python_fu_new_grid_image()
+    floating_sel = copy_png_to_img('outline1.png', img, x_offset=25, \
+                                   y_offset=25)
+    if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+        pdb.gimp_floating_sel_anchor(floating_sel)
+
+
+register(
+        "load_outline_png",
+        "Load outline into file",
+        "Load outline into file",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load Outline",
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        load_outline_png)
+
+import tkFileDialog
+pngtypes = [('png files', '*.png')]
+import tk_simple_dialog
+
+def open_png(initialdir=None, initialfile=None):
+    filename = tkFileDialog.askopenfilename(initialfile=initialfile,
+                                            initialdir=initialdir,
+                                            filetypes=pngtypes)
+    return filename
+
+def load_any_png():
+    img = pdb.python_fu_new_grid_image()
+    pngpath = open_png()
+    floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
+                                   y_offset=25)
+    if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+        pdb.gimp_floating_sel_anchor(floating_sel)
+
+
+register(
+        "load_any_png",
+        "Load any png into file",
+        "Load png from pyp into file",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load PNG",
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        load_any_png)
+    
 
 def paste_eqn_with_offests_and_clear(img, drawable):
     #t1 = time.time()
