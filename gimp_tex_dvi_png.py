@@ -1,5 +1,19 @@
 #!/usr/bin/python
 
+## How to use my GIMP LaTeX stuff:
+
+## 1. select an area where the text will be pasted
+## 2. F8 (Filters/Ryan/Latex/Initialize Latex Paste) brings up the wx window 
+
+##     - this is the top Ryan in the Filters menu
+
+## 3. type in the wx box
+## 4. press either alt-\ for normal text or ctrl-\ to first wrap in $ $
+## 5. the KeyPressed method of wx frame should pass F7 to GIMP through xdotool, but if not, F7 pastes the png into the selected area
+
+##     - F7 is tied to Filters/Ryan/Latex/paste egn
+##     - it may use only the top left corner of the selection rectangle
+
 import os, glob, re
 import pdb as Pdb
 import time
@@ -191,8 +205,11 @@ def top_layer_is_TEMP(img, ind=0):
 def top_layer_is_Latex(img, ind=0, name='Latex'):
     return bool(img.layers[ind].name.find(name) == 0)
 
-def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
+def copy_png_to_img(png_path, img, x_offset=None, y_offset=None, \
+                    autocrop=True):
     img2 = pdb.gimp_file_load(png_path, png_path)
+    if autocrop:
+        pdb.plug_in_autocrop(img2, img2.layers[0])
     w = img.width
     max_w = w-50
     if x_offset is not None:
@@ -229,6 +246,47 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None):
     return float_layer
 
 
+def copy_img2_to_img(img2, img, x_offset=None, y_offset=None):
+    w = img.width
+    max_w = w-50
+    if x_offset is not None:
+        max_w -= x_offset
+    #print('max_w=%s' % max_w)
+    if img2.width > max_w:
+        ar = float(img2.height)/float(img2.width)
+        new_h = max_w*ar
+        pdb.gimp_image_scale(img2, max_w, new_h)
+    pdb.gimp_edit_copy_visible(img2)
+    #gimp.Display(img2)
+    width = img.width
+    height = img.height
+    #print('width = %s' % width)
+    #print('height = %s' % height)
+    if top_layer_is_TEMP(img):
+        trans_layer = img.layers[0]
+    else:
+        trans_layer = gimp.Layer(img, 'Latex', width, height, \
+                                 RGBA_IMAGE, 100, NORMAL_MODE)
+        img.add_layer(trans_layer)
+    float_layer = pdb.gimp_edit_paste(trans_layer, 1)
+    if (x_offset is not None) or (y_offset is not None):
+        if x_offset is None:#if either is not None, the other defaults
+                            #to 0
+            x_offset = 0
+        if y_offset is None:
+            y_offset = 0
+        pdb.gimp_layer_set_offsets(float_layer, x_offset, y_offset)
+    else:
+        mcmd = "xdotool key M"
+        time.sleep(0.1)
+        os.system(mcmd)
+    return float_layer
+
+
+def copy_pdf_to_img(pdf_path, img, x_offset=None, y_offset=None):
+    img2 = pdb.file_pdf_load(pdf_path, pdf_path)
+    copy_img2_to_img(img2, img, x_offset=x_offset, y_offset=y_offset)
+
 def load_outline_png():
     img = pdb.python_fu_new_grid_image()
     floating_sel = copy_png_to_img('outline1.png', img, x_offset=25, \
@@ -252,12 +310,19 @@ register(
 
 import tkFileDialog
 pngtypes = [('png files', '*.png')]
+pdftypes = [('pdf files', '*.pdf')]
 import tk_simple_dialog
 
 def open_png(initialdir=None, initialfile=None):
     filename = tkFileDialog.askopenfilename(initialfile=initialfile,
                                             initialdir=initialdir,
                                             filetypes=pngtypes)
+    return filename
+
+def open_pdf(initialdir=None, initialfile=None):
+    filename = tkFileDialog.askopenfilename(initialfile=initialfile,
+                                            initialdir=initialdir,
+                                            filetypes=pdftypes)
     return filename
 
 def load_any_png():
@@ -281,6 +346,28 @@ register(
         [],
         [],
         load_any_png)
+
+def load_any_pdf():
+    img = pdb.python_fu_new_grid_image()
+    pdfpath = open_pdf()
+    floating_sel = copy_pdf_to_img(pdfpath, img, x_offset=25, \
+                                   y_offset=25)
+##     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+##         pdb.gimp_floating_sel_anchor(floating_sel)
+
+
+register(
+        "load_any_pdf",
+        "Load any pdf into file",
+        "Load pdf from pyp into file",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load PDF",
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        load_any_pdf)
     
 
 def paste_eqn_with_offests_and_clear(img, drawable):
