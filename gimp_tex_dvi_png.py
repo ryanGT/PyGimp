@@ -205,6 +205,31 @@ def top_layer_is_TEMP(img, ind=0):
 def top_layer_is_Latex(img, ind=0, name='Latex'):
     return bool(img.layers[ind].name.find(name) == 0)
 
+def scale_image(img, max_w, max_h, debug=0):
+    if debug:
+        print('max_w = '+str(max_w))
+        print('max_h = '+str(max_h))
+        print('img.width = '+str(img.width))
+        print('img.height = '+str(img.height))
+    if (img.width > max_w) or (img.height > max_h):
+        s1 = img.width/max_w
+        s2 = img.height/max_h
+        ar = float(img.height)/float(img.width)
+        if s1 > s2:
+            if debug:
+                print('using max_w')
+            new_w = max_w
+            new_h = max_w*ar
+        else:
+            if debug:
+                print('using max_h')
+            #Pdb.set_trace()
+            new_h = max_h
+            new_w = max_h/ar
+        pdb.gimp_image_scale(img, new_w, new_h)
+    return img
+
+    
 def copy_png_to_img(png_path, img, x_offset=None, y_offset=None, \
                     autocrop=True):
     img2 = pdb.gimp_file_load(png_path, png_path)
@@ -212,13 +237,20 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None, \
         pdb.plug_in_autocrop(img2, img2.layers[0])
     w = img.width
     max_w = w-50
+    h = img.height
+    max_h = h-50
     if x_offset is not None:
         max_w -= x_offset
+    if y_offset is not None:
+        max_h -= y_offset
+    scale_image(img2, max_w, max_h)
     #print('max_w=%s' % max_w)
-    if img2.width > max_w:
-        ar = float(img2.height)/float(img2.width)
-        new_h = max_w*ar
-        pdb.gimp_image_scale(img2, max_w, new_h)
+##     if (img2.width > max_w) or (img2.height > max_h):
+##         s1 = img2.width/max_w
+##         s2 = img2.height/max_h
+##         ar = float(img2.height)/float(img2.width)
+##         new_h = max_w*ar
+##         pdb.gimp_image_scale(img2, max_w, new_h)
     pdb.gimp_edit_copy_visible(img2)
     #gimp.Display(img2)
     width = img.width
@@ -288,11 +320,22 @@ def copy_pdf_to_img(pdf_path, img, x_offset=None, y_offset=None):
     copy_img2_to_img(img2, img, x_offset=x_offset, y_offset=y_offset)
 
 def load_outline_png():
-    img = pdb.python_fu_new_grid_image()
-    floating_sel = copy_png_to_img('outline1.png', img, x_offset=25, \
-                                   y_offset=25)
-    if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
-        pdb.gimp_floating_sel_anchor(floating_sel)
+    myname = 'outline1.png'
+    mypath = None
+    if os.path.exists(myname):
+        mypath = myname
+    else:
+        tmppath = os.path.join('exclude', myname)
+        if os.path.exists(tmppath):
+            mypath = tmppath
+    if mypath is not None:
+        img = pdb.python_fu_new_grid_image()
+        floating_sel = copy_png_to_img(mypath, img, x_offset=25, \
+                                       y_offset=25)
+        if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+            pdb.gimp_floating_sel_anchor(floating_sel)
+    else:
+        print('outline1.png not found in curdir or curdir/exlude.')
 
 
 register(
