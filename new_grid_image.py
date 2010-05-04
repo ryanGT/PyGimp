@@ -346,6 +346,36 @@ register(
         [],
         blue_brush)
 
+def find_if_open(imgname):
+    Pdb.set_trace()
+    mylist = gimp.image_list()
+    for img in mylist:
+        curname = img.name
+        if curname == imgname:
+            return img
+    #this line would be executed only if imgname was never found
+    return None
+
+
+def list_images():
+    #Pdb.set_trace()
+    mylist = gimp.image_list()
+    for item in mylist:
+        print('item = '+str(item))
+
+register(
+        "list_images",
+        "Set brush foreground to blue",
+        "Set brush foreground to blue",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Xtns/Languages/Ryan/_List Images",
+        "",#RGB*, GRAY*",
+        [],
+        [],
+        list_images)
+
 
 def green_brush():
     pdb.gimp_context_set_foreground((0,255,0))
@@ -446,54 +476,59 @@ def my_save2(img, drawable):
 
     if ind:
         img.layers[ind].visible = False
-        folder = get_path_from_pkl()
-        log_msg('folder='+str(folder))
-        myint = get_notes_layer_slide_num(img)
-        log_msg('myint='+str(myint))
-        title_in = img.filename
-        log_msg('title_in = %s' % title_in)
-        new_name = None
-        if title_in:
-            folder_in, name_in = os.path.split(title_in)
-            fno, ext = os.path.splitext(name_in)
-            name_in = fno + '.png'
-            #log_msg('name_in = %s' % name_in)
-            #log_msg('folder_in = %s' % folder_in)
-            cn = get_course_number()
-            my_ind = name_in.find('ME'+cn)
-            #log_msg('my_ind = %s' % my_ind)
-            if my_ind == 0:
-                #log_msg('in the good case')
-                folder = folder_in
-                new_name = name_in
-        #log_msg('new_name = %s' % new_name)
-        if new_name is None:
-            new_name, slide_num = get_slide_num_filename(myint=myint)
-        filename = save_as(initialdir=folder, initialfile=new_name)
-        #log_msg('filename = ' + filename)
-        if filename:
-            pne, ext = os.path.splitext(filename)
-            xcf_path = pne+'.xcf'
-            pdb.gimp_selection_all(img)
-            pdb.gimp_edit_copy_visible(img)
-            img2 = pdb.gimp_edit_paste_as_new()
-            pdb.gimp_xcf_save(1, img, drawable, xcf_path, xcf_path)
-            folder, xcf_name = os.path.split(xcf_path)
-            xcf_path = xcf_path.encode()
-            xcf_name = xcf_name.encode()
-            #log_msg('xcf_name='+xcf_name)
-            #log_msg('type(img.filename)=%s' % type(img.filename))
-            #log_msg('type(xcf_name)=%s' % type(xcf_name))
-            img.filename = xcf_path
-            #pdb.gimp_file_save(img, drawable, xcf_path, xcf_path)
-            flat_layer = pdb.gimp_image_flatten(img2)
-            #gimp.Display(img2)
-            pdb.gimp_file_save(img2, flat_layer, filename, filename)
-            pdb.gimp_image_delete(img2)
+    else:
+        log_msg('did not find a graph ind')
+        
+    folder = get_path_from_pkl()
+    log_msg('folder='+str(folder))
+    myint = get_notes_layer_slide_num(img)
+    log_msg('myint='+str(myint))
+    title_in = img.filename
+    log_msg('title_in = %s' % title_in)
+    new_name = None
+    if title_in:
+        folder_in, name_in = os.path.split(title_in)
+        fno, ext = os.path.splitext(name_in)
+        name_in = fno + '.png'
+        #log_msg('name_in = %s' % name_in)
+        #log_msg('folder_in = %s' % folder_in)
+        cn = get_course_number()
+        my_ind = name_in.find('ME'+cn)
+        #log_msg('my_ind = %s' % my_ind)
+        if my_ind == 0:
+            #log_msg('in the good case')
+            folder = folder_in
+            new_name = name_in
+    #log_msg('new_name = %s' % new_name)
+    if new_name is None:
+        new_name, slide_num = get_slide_num_filename(myint=myint)
+    filename = save_as(initialdir=folder, initialfile=new_name)
+    log_msg('filename = ' + filename)
+    if filename:
+        pne, ext = os.path.splitext(filename)
+        xcf_path = pne+'.xcf'
+        pdb.gimp_selection_all(img)
+        pdb.gimp_edit_copy_visible(img)
+        img2 = pdb.gimp_edit_paste_as_new()
+        pdb.gimp_xcf_save(1, img, drawable, xcf_path, xcf_path)
+        folder, xcf_name = os.path.split(xcf_path)
+        xcf_path = xcf_path.encode()
+        xcf_name = xcf_name.encode()
+        #log_msg('xcf_name='+xcf_name)
+        #log_msg('type(img.filename)=%s' % type(img.filename))
+        #log_msg('type(xcf_name)=%s' % type(xcf_name))
+        img.filename = xcf_path
+        #pdb.gimp_file_save(img, drawable, xcf_path, xcf_path)
+        flat_layer = pdb.gimp_image_flatten(img2)
+        #gimp.Display(img2)
+        pdb.gimp_file_save(img2, flat_layer, filename, filename)
+        pdb.gimp_image_delete(img2)
+        if ind:
             img.layers[ind].visible = True
-            pdb.gimp_image_clean_all(img)
-            gimp.displays_flush()
-            
+        pdb.gimp_image_clean_all(img)
+        gimp.displays_flush()
+        log_msg('after clean all')
+
 
 register(
         "my_save2",
@@ -507,6 +542,70 @@ register(
         [],
         [],
         my_save2)
+
+
+def raise_img(img):
+    #gimp.Display(img)#<-- this seems to re-open the image or create a
+    #new Display for it
+    gimp.displays_flush()
+    time.sleep(0.5)
+    move_resize_window()#timg, tdrawable)
+    
+
+def _open_by_int(next_int):
+    new_name, new_ind = get_slide_num_filename(myint=next_int)
+    print('new_name = ' + str(new_name))
+    path_no_ext, ext = os.path.splitext(new_name)
+    xcf_name = path_no_ext +'.xcf'
+    img = find_if_open(xcf_name)
+    if img is None:
+        my_open(filename=xcf_name)
+    else:
+        raise_img(img)
+    
+
+def open_next(img, drawable):
+    #This doesn't work perfectly.  It seems like it opens pngs instead
+    #of xcfs (which makes sense if you look at get_slide_num_filename)
+    myint = get_notes_layer_slide_num(img)
+    next_int = myint + 1
+    _open_by_int(next_int)
+    
+
+register(
+        "open_next",
+        "Open next image",
+        "Open next image",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Image>/Filters/Ryan/_Open Next Image",
+        "RGB*, GRAY*",
+        [],
+        [],
+        open_next)
+
+
+def open_previous(img, drawable):
+    #This doesn't work perfectly.  It seems like it opens pngs instead
+    #of xcfs (which makes sense if you look at get_slide_num_filename)
+    myint = get_notes_layer_slide_num(img)
+    prev_int = myint - 1
+    _open_by_int(prev_int)
+
+
+register(
+        "open_previous",
+        "Open previous image",
+        "Open previous image",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Image>/Filters/Ryan/_Open Previous Image",
+        "RGB*, GRAY*",
+        [],
+        [],
+        open_previous)
 
 
 def save_quiz(img, drawable):
@@ -585,9 +684,10 @@ register(
   )
 
 
-def my_open(dialog_func=open_xcf):
+def my_open(dialog_func=open_xcf, filename=None):
     folder = get_path_from_pkl()
-    filename = dialog_func(initialdir=folder)
+    if filename is None:
+        filename = dialog_func(initialdir=folder)
     #img = pdb.gimp_file_load(1, filename, filename)
     img = pdb.gimp_file_load(filename, filename)
     ind = find_graph_ind(img)
