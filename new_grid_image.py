@@ -80,7 +80,7 @@ from pygimp_lecture_utils import set_lecture_path, get_course_number, \
 ##     return folder
 
 
-def find_graph_ind(img, name='graph_paper.png'):
+def find_graph_ind(img, name='graph_paper_2000_by_1200.png'):
     N = len(img.layers)
     for n in range(N):
         if img.layers[n].name == name:
@@ -121,9 +121,9 @@ def move_resize_window():#timg, tdrawable):
                              stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output, errors = p.communicate()
         win = output.strip()#get id of active window
-        movecmd = 'xdotool windowmove %s 250 0' % win
+        movecmd = 'xdotool windowmove %s 0 0' % win
         os.system(movecmd)
-        sizecmd = 'xdotool windowsize %s 1150 950' % win
+        sizecmd = 'xdotool windowsize %s 1250 950' % win
         os.system(sizecmd)
         ecmd = "xdotool key ctrl+shift+E"
         time.sleep(0.7)
@@ -144,9 +144,12 @@ register(
         move_resize_window)
 
 
-def new_grid_image(pat=None, footer='', footer_x=1900):#timg, tdrawable):
+def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     width = 2000
-    height = 1600
+    #height = 1600
+    height = 1200
+    header_x = 1780
+    footer_y = height - 80
     
     img = gimp.Image(width, height, RGB)
 
@@ -170,15 +173,18 @@ def new_grid_image(pat=None, footer='', footer_x=1900):#timg, tdrawable):
     date_str = date_str.replace('_','/')
     pdb.gimp_context_set_foreground((0,0,0))
     cn = get_course_number()
-    text_layer = pdb.gimp_text_fontname(img, trans_layer, 1725, 10, \
+    font_size_header_footer = 40
+    text_layer = pdb.gimp_text_fontname(img, trans_layer, header_x, 10, \
                                         "ME %s\n%s" % (cn, date_str), \
-                                        0, True, 50, 1, "Sans")
+                                        0, True, font_size_header_footer, \
+                                        1, "Sans")
 
     pdb.gimp_floating_sel_anchor(text_layer)
     
-    text_layer2 = pdb.gimp_text_fontname(img, trans_layer, footer_x, 1520, \
+    text_layer2 = pdb.gimp_text_fontname(img, trans_layer, footer_x, footer_y, \
                                          footer+str(slide_num), \
-                                         0, True, 50, 1, "Sans")
+                                         0, True, font_size_header_footer, \
+                                         1, "Sans")
 
 
     pdb.gimp_floating_sel_anchor(text_layer2)
