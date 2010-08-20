@@ -803,7 +803,10 @@ def save_current_slide():
     for img in img_list:
         curname = img.filename
         if curname and curname.find(full_pat) == 0:
-            my_save_2010(img)
+            if pdb.gimp_image_is_dirty(img):
+                my_save_2010(img)
+            else:
+                print('not saving clean image: ' + curname)
 
 
 def close_all(N=10):
