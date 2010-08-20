@@ -767,7 +767,7 @@ def my_open(dialog_func=open_xcf, filename=None):
 
 register(
 	"my_open", "", "", "", "", "",
-  	"<Toolbox>/Lecture/Ryan/_Open Grid Image", "",
+  	"<Toolbox>/Lecture/_Open Grid Image", "",
   	[],
         [],
         my_open
@@ -864,7 +864,7 @@ def find_last_slide_ind():
     mydict = open_pickle()
     pat = mydict['pat']
     full_pat = os.path.join(mydict['lecture_path'], pat)
-    for i in 100:
+    for i in range(100):
         n = i + 1
         curpath = full_pat % n
         if not os.path.exists(curpath):
@@ -1107,7 +1107,7 @@ register(
         "RGB*, GRAY*",
         [],
         [],
-        my_save2)
+        my_save_2010)
 
 
 #############################################
