@@ -25,8 +25,12 @@ Linux = rwkos.amiLinux()
 
 import pygimp_lecture_utils
 from pygimp_lecture_utils import set_lecture_path, get_course_number, \
-     get_path_from_pkl, graph_path, get_date_for_slide, get_slide_num_filename, \
-     log_msg
+     get_path_from_pkl, graph_path, get_date_for_slide, \
+     get_slide_num_filename, \
+     log_msg, open_pickle, save_pickle, \
+     folder_from_pickle
+
+import pygimp_lecture_utils as PGLU
 
 ## def get_course_key_from_curdir():
 ##     curdir = os.getcwd()
@@ -80,10 +84,11 @@ from pygimp_lecture_utils import set_lecture_path, get_course_number, \
 ##     return folder
 
 
-def find_graph_ind(img, name='graph_paper_2000_by_1200.png'):
+def find_graph_ind(img, name='graph_paper_2000_by_1300.png'):
     N = len(img.layers)
     for n in range(N):
-        if img.layers[n].name == name:
+        if img.layers[n].name.find('graph_paper') == 0:
+            #img.layers[n].name == name:
             return n
 
 
@@ -123,7 +128,7 @@ def move_resize_window():#timg, tdrawable):
         win = output.strip()#get id of active window
         movecmd = 'xdotool windowmove %s 0 0' % win
         os.system(movecmd)
-        sizecmd = 'xdotool windowsize %s 1250 950' % win
+        sizecmd = 'xdotool windowsize %s 1024 700' % win
         os.system(sizecmd)
         ecmd = "xdotool key ctrl+shift+E"
         time.sleep(0.7)
@@ -147,7 +152,7 @@ register(
 def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     width = 2000
     #height = 1600
-    height = 1200
+    height = 1300
     header_x = 1780
     footer_y = height - 80
     
@@ -192,7 +197,7 @@ def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     #pdb.gimp_edit_clear(trans_layer)
 
 
-    gimp.Display(img)
+    out1 = gimp.Display(img)
     gimp.displays_flush()
     pdb.gimp_image_clean_all(img)
     title_in = img.filename
@@ -207,7 +212,7 @@ register("new_grid_image",
          "Ryan Krauss",
          "Ryan Krauss",
          "2009",
-         "<Toolbox>/Xtns/Languages/Ryan/_New Grid Image",
+         "<Toolbox>/Xtns/Languages/Ryan/2009/_New Grid Image",
          "",#RGB*, GRAY*",
          [],
          [(PF_IMAGE, 'img', 'the new image')],
@@ -220,7 +225,7 @@ register("set_lecture_path", \
          "Ryan Krauss", \
          "Ryan Krauss", \
          "2009", \
-         "<Toolbox>/Xtns/Languages/Ryan/Set Lecture Path", \
+         "<Toolbox>/Xtns/Languages/Ryan/2009/Set Lecture Path", \
          "", \
          [], \
          [], \
@@ -292,7 +297,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/New _Quiz Solution Page",
+        "<Toolbox>/Xtns/Languages/Ryan/2009/New _Quiz Solution Page",
         "",#RGB*, GRAY*",
         [],
         [],
@@ -310,7 +315,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/_Red Brush",
+        "<Toolbox>/Lecture/Brushes/_Red Brush",
         "",#RGB*, GRAY*",
         [],
         [],
@@ -328,7 +333,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/_Black Brush",
+        "<Toolbox>/Lecture/Brushes/_Black Brush",
         "",#RGB*, GRAY*",
         [],
         [],
@@ -346,14 +351,15 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/_Blue Brush",
+        "<Toolbox>/Lecture/Brushes/_Blue Brush",
         "",#RGB*, GRAY*",
         [],
         [],
         blue_brush)
 
+
 def find_if_open(imgname):
-    Pdb.set_trace()
+    #Pdb.set_trace()
     mylist = gimp.image_list()
     for img in mylist:
         curname = img.name
@@ -376,7 +382,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/_List Images",
+        "<Toolbox>/Xtns/Languages/Ryan/2009/_List Images",
         "",#RGB*, GRAY*",
         [],
         [],
@@ -394,7 +400,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/_Green Brush",
+        "<Toolbox>/Lecture/Brushes/_Green Brush",
         "",#RGB*, GRAY*",
         [],
         [],
@@ -469,7 +475,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Ryan/_Save Grid Image",
+        "<Image>/Filters/Ryan/2009/_Save Grid Image",
         "RGB*, GRAY*",
         [],
         [],
@@ -543,7 +549,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Ryan/_Save Grid Image 2",
+        "<Image>/Filters/Ryan/2009/_Save Grid Image 2",
         "RGB*, GRAY*",
         [],
         [],
@@ -576,7 +582,7 @@ def open_next(img, drawable):
     myint = get_notes_layer_slide_num(img)
     next_int = myint + 1
     _open_by_int(next_int)
-    
+
 
 register(
         "open_next",
@@ -585,7 +591,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Ryan/_Open Next Image",
+        "<Image>/Filters/Ryan/2009/_Open Next Image",
         "RGB*, GRAY*",
         [],
         [],
@@ -607,13 +613,33 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Ryan/_Open Previous Image",
+        "<Image>/Filters/Ryan/2009/_Open Previous Image",
         "RGB*, GRAY*",
         [],
         [],
         open_previous)
 
 
+def my_close(img, drawable):
+    #pdb.gimp_display_delete(gimp._id2display(1))
+    pdb.gimp_display_delete(img)
+
+
+register(
+        "my_close",
+        "Close image",
+        "Close image",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Image>/Filters/Ryan/2009/_Close Image",
+        "RGB*, GRAY*",
+        [],
+        [],
+        my_close)
+
+    
+    
 def save_quiz(img, drawable):
     folder = get_path_from_pkl()
     new_name = get_quiz_solution_filename()
@@ -649,7 +675,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Image>/Filters/Ryan/Save _Quiz Image",
+        "<Image>/Filters/Ryan/2009/Save _Quiz Image",
         "RGB*, GRAY*",
         [],
         [],
@@ -708,7 +734,19 @@ def my_open(dialog_func=open_xcf, filename=None):
         pdb.gimp_image_set_active_layer(img, img.layers[ind2])
 
     pdb.gimp_image_clean_all(img)
-    gimp.Display(img)
+
+    #Set the current_slide if it is in the current lecture
+    mydict = open_pickle()
+    full_pat = os.path.join(mydict['lecture_path'], mydict['search_pat'])
+    if filename.find(full_pat) == 0:
+        folder, name = os.path.split(filename)
+        fno, ext = os.path.splitext(name)
+        int_str = fno[-4:]
+        cur_slide = int(int_str)
+        mydict['current_slide'] = cur_slide
+        save_pickle(mydict)
+    
+    out2 = gimp.Display(img)
     gimp.displays_flush()
     time.sleep(0.5)
     move_resize_window()#timg, tdrawable)
@@ -729,7 +767,7 @@ def my_open(dialog_func=open_xcf, filename=None):
 
 register(
 	"my_open", "", "", "", "", "",
-  	"<Toolbox>/Xtns/Languages/Ryan/_Open Grid Image", "",
+  	"<Toolbox>/Lecture/Ryan/_Open Grid Image", "",
   	[],
         [],
         my_open
@@ -747,6 +785,337 @@ register(
         [],
         open_quiz
 )
+
+
+
+#############################################
+#
+#  Fall 2010 Versions
+#
+#############################################
+def save_current_slide():
+    img_list = gimp.image_list()
+    N = len(img_list)
+    print('img_list = ' + str(img_list))
+    #Pdb.set_trace()
+    mydict = open_pickle()
+    full_pat = os.path.join(mydict['lecture_path'], mydict['search_pat'])
+    for img in img_list:
+        curname = img.filename
+        if curname and curname.find(full_pat) == 0:
+            my_save_2010(img)
+
+
+def close_all(N=10):
+    if gimp.image_list():
+        for i in range(N):
+            disp = gimp._id2display(i)
+            if disp is not None:
+                #Pdb.set_trace()
+                try:
+                    pdb.gimp_display_delete(disp)
+                except:
+                    print('problem deleting disp # ' + str(i))
+            
+    
+def open_or_create_slide(mydict, verbosity=1):
+    filepath = build_slide_path(mydict)
+    if os.path.exists(filepath):
+        if verbosity > 0:
+            print('found:' + filepath)
+        save_pickle(mydict)
+        my_open(filename=filepath)
+    else:
+        print('filepath not found: ' + filepath)
+        new_grid_image_2010()#this function saves the pickle
+
+
+def _save_and_close(save=True, close=True):
+    if save:
+        save_current_slide()
+    if close:
+        close_all()
+
+
+def build_slide_path(mydict):
+    pat = mydict['pat']
+    filename = pat % mydict['current_slide']
+    filepath = os.path.join(mydict['lecture_path'], filename)
+    return filepath
+
+    
+def open_or_create_next_slide(save=True, close=True):
+    _save_and_close(save=save, close=close)
+    mydict = open_pickle()
+    next_slide = mydict['current_slide'] + 1
+    mydict['current_slide'] = next_slide
+    open_or_create_slide(mydict)
+
+
+def open_previous_slide(save=True, close=True):
+    _save_and_close(save=save, close=close)
+    mydict = open_pickle()
+    prev_slide = mydict['current_slide'] - 1
+    mydict['current_slide'] = prev_slide
+    open_or_create_slide(mydict)
+
+
+def find_last_slide_ind():
+    mydict = open_pickle()
+    pat = mydict['pat']
+    full_pat = os.path.join(mydict['lecture_path'], pat)
+    for i in 100:
+        n = i + 1
+        curpath = full_pat % n
+        if not os.path.exists(curpath):
+            n -= 1
+            return n
+        
+
+def jump_to_first_slide():
+    mydict = open_pickle()
+    mydict['current_slide'] = 1
+    save_pickle(mydict)
+    open_or_create_slide(mydict)
+
+
+def jump_to_last_slide():
+    ind = find_last_slide_ind()
+    mydict = open_pickle()
+    mydict['current_slide'] = ind
+    save_pickle(mydict)
+    open_or_create_slide(mydict)
+    
+
+register("jump_to_first_slide",
+         "Jump to first slide",
+         "Jump to first slide",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/Jump/Jump to _First",
+         "",#RGB*, GRAY*",
+         [],
+         [],
+         jump_to_first_slide)
+
+
+register("jump_to_last_slide",
+         "Jump to last slide",
+         "Jump to last slide",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/Jump/Jump to _Last",
+         "",#RGB*, GRAY*",
+         [],
+         [],
+         jump_to_last_slide)
+
+
+def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
+    #print('in new_grid_image_2010')
+    width = 2000
+    #height = 1600
+    height = 1300
+    header_x = 1780
+    footer_y = height - 80
+
+    img = gimp.Image(width, height, RGB)
+
+    white_layer = gimp.Layer(img, "White Layer", width, height, \
+                             RGB_IMAGE, 100, NORMAL_MODE)
+    pdb.gimp_drawable_fill(white_layer, WHITE_FILL)
+    img.add_layer(white_layer)
+
+    graph_layer = pdb.gimp_file_load_layer(img, graph_path)
+    img.add_layer(graph_layer)
+
+    new_name, slide_num = PGLU.get_slide_num_filename_2010()
+    print('new_name = ' + new_name)
+    mydict = open_pickle()
+    notes_name = "Notes Layer %0.4d" % int(slide_num)
+    trans_layer = gimp.Layer(img, notes_name, width, height, \
+                             RGBA_IMAGE, 100, NORMAL_MODE)
+    pdb.gimp_drawable_fill(trans_layer, TRANSPARENT_FILL)
+    img.add_layer(trans_layer)
+
+    img.active_layer = trans_layer
+    date_str = mydict['date_stamp']
+    #date_str = date_str.replace('_','/')
+    pdb.gimp_context_set_foreground((0,0,0))
+    cn = mydict['course_num']
+    font_size_header_footer = 40
+    text_layer = pdb.gimp_text_fontname(img, trans_layer, header_x, 10, \
+                                        "ME %s\n%s" % (cn, date_str), \
+                                        0, True, font_size_header_footer, \
+                                        1, "Sans")
+
+    pdb.gimp_floating_sel_anchor(text_layer)
+
+    text_layer2 = pdb.gimp_text_fontname(img, trans_layer, footer_x, footer_y, \
+                                         footer+str(slide_num), \
+                                         0, True, font_size_header_footer, \
+                                         1, "Sans")
+
+
+    pdb.gimp_floating_sel_anchor(text_layer2)
+    #pdb.gimp_selection_all(img)
+    #pdb.gimp_edit_clear(trans_layer)
+
+    new_path = os.path.join(mydict['lecture_path'], new_name)
+    img.filename = new_path
+
+
+    mydict['current_slide'] = slide_num
+    save_pickle(mydict)
+    
+    out1 = gimp.Display(img)
+    gimp.displays_flush()
+    pdb.gimp_image_clean_all(img)
+    ## title_in = img.filename
+    ## log_msg('title_in=%s' % title_in)
+    move_resize_window()
+    return img
+
+
+register("new_grid_image_2010",
+         "A new image for class lectures",
+         "A new image for class lectures",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/_New Grid Image",
+         "",#RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         new_grid_image_2010)
+
+
+register("open_or_create_next_slide",
+         "Open next slide for class lectures",
+         "Open or create next slide for class lectures",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/_Next Slide",
+         "",#RGB*, GRAY*",
+         [],
+         [],#(PF_IMAGE, 'img', 'the next slide')],
+         open_or_create_next_slide)
+
+
+
+register("open_previous_slide",
+         "Open previous slide for class lectures",
+         "Open or create previous slide for class lectures",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/_Previous Slide",
+         #"<Toolbox>/Xtns/Languages/Ryan/_Previous Slide",
+         "",#RGB*, GRAY*",
+         [],
+         [],#(PF_IMAGE, 'img', 'the next slide')],
+         open_previous_slide)
+
+
+def zero_current_slide():
+    mydict = open_pickle()
+    mydict['current_slide'] = 0
+    save_pickle(mydict)
+
+
+register("zero_current_slide",
+     "Set the current lecture slide number back to 0",
+     "Set the current lecture slide number back to 0",
+     "Ryan Krauss",
+     "Ryan Krauss",
+     "2010",
+     "<Toolbox>/Lecture/_Zero Current Slide",
+     "",
+     [],
+     [],
+     zero_current_slide)
+
+
+def _really_save(img, savepath):
+    ind = find_graph_ind(img)
+
+    if ind:
+        img.layers[ind].visible = False
+
+    pne, ext = os.path.splitext(savepath)
+    xcf_path = pne + '.xcf'
+    png_path = pne + '.png'
+    pdb.gimp_selection_all(img)
+    pdb.gimp_edit_copy_visible(img)
+    img2 = pdb.gimp_edit_paste_as_new()
+    drawable = img.layers[0]
+    pdb.gimp_xcf_save(1, img, drawable, xcf_path, xcf_path)
+    #img.filename = xcf_path
+    flat_layer = pdb.gimp_image_flatten(img2)
+    #gimp.Display(img2)
+    pdb.gimp_file_save(img2, flat_layer, png_path, png_path)
+    pdb.gimp_image_delete(img2)
+    if ind:
+        img.layers[ind].visible = True
+    pdb.gimp_image_clean_all(img)
+    gimp.displays_flush()
+
+    
+def my_save_2010(img, drawable=None):
+    path1 = img.filename
+
+    mydict = open_pickle()
+    folder = mydict['lecture_path']
+    search_pat = mydict['search_pat']
+    search_folder = os.path.join(folder, search_pat)
+    #Test 1
+    if path1.find(search_folder) != 0:
+        print('problem with filename: ' + path1)
+        return
+
+    #Test 2
+    myint = get_notes_layer_slide_num(img)
+    name2 = mydict['pat'] % myint
+    path2 = os.path.join(folder, name2)
+
+    int3 = mydict['current_slide']
+    #if (int3 == myint) and (path1 == path2):
+    print('path1 = ' + path1)
+    print('path2 = ' + path2)
+
+    if path1 == path2:
+        #We have a pretty sure match
+        _really_save(img, path1)    
+    else:
+        png_path = save_as(initialdir=folder, \
+                           initialfile=new_name)
+        _really_save(img, png_path)    
+
+
+
+register(
+        "my_save_2010",
+        "Save grid image with grid not visible",
+        "Save grid image with grid not visible",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2010",
+        "<Image>/Lecture/_Save Grid Image 2010",
+        "RGB*, GRAY*",
+        [],
+        [],
+        my_save2)
+
+
+#############################################
+#
+# End 2010
+#
+#############################################
+
 
 ##---------------------##
 #

@@ -30,6 +30,10 @@ offset_name = 'offsets.txt'
 offset_path = os.path.join(cache_dir, offset_name)
 temp_name = 'Latex TEMP'
 
+
+import pygimp_lecture_utils
+from pygimp_lecture_utils import folder_from_pickle
+
 def get_upper_left_selection(img, drawable):
     bounds = pdb.gimp_selection_bounds(img)
     ints = [int(item) for item in bounds]
@@ -315,6 +319,7 @@ def copy_img2_to_img(img2, img, x_offset=None, y_offset=None, \
         mcmd = "xdotool key M"
         time.sleep(0.1)
         os.system(mcmd)
+    pdb.gimp_image_delete(img2)
     return float_layer
 
 
@@ -330,23 +335,29 @@ def copy_jpg_to_img(jpg_path, img, x_offset=None, y_offset=None, \
     return copy_img2_to_img(img2, img, x_offset=x_offset, y_offset=y_offset, \
                             autocrop=autocrop)
 
+
 def copy_png_to_img(png_path, img, x_offset=None, y_offset=None, \
                     autocrop=True):
     img2 = pdb.gimp_file_load(png_path, png_path)
     return copy_img2_to_img(img2, img, x_offset=x_offset, y_offset=y_offset, \
                             autocrop=autocrop)
 
-def load_outline_png():
+
+def load_outline_png(folder=None):
     myname = 'outline1.png'
+    if folder is None:
+        folder = folder_from_pickle()
+    path1 = os.path.join(folder, myname)
+    path2 = os.path.join(folder, 'exclude')
+    path2 = os.path.join(path2, myname)
     mypath = None
-    if os.path.exists(myname):
-        mypath = myname
+    if os.path.exists(path1):
+        mypath = path1
     else:
-        tmppath = os.path.join('exclude', myname)
-        if os.path.exists(tmppath):
-            mypath = tmppath
+        if os.path.exists(path2):
+            mypath = path2
     if mypath is not None:
-        img = pdb.python_fu_new_grid_image()
+        img = pdb.python_fu_new_grid_image_2010()
         floating_sel = copy_png_to_img(mypath, img, x_offset=25, \
                                        y_offset=25)
         if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
@@ -362,7 +373,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load Outline",
+        "<Toolbox>/Lecture/Load/Load Outline",
         "",#"RGB*, GRAY*",
         [],
         [],
@@ -393,8 +404,9 @@ def open_jpg(initialdir=None, initialfile=None):
     return filename
 
 def load_any_png():
-    img = pdb.python_fu_new_grid_image()
-    pngpath = open_png()
+    img = pdb.python_fu_new_grid_image_2010()
+    initialdir = folder_from_pickle()
+    pngpath = open_png(initialdir=initialdir)
     floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
                                    y_offset=25)
     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
@@ -408,15 +420,16 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load PNG",
+        "<Toolbox>/Lecture/Load/Load PNG",
         "",#"RGB*, GRAY*",
         [],
         [],
         load_any_png)
 
 def load_any_pdf():
-    img = pdb.python_fu_new_grid_image()
-    pdfpath = open_pdf()
+    img = pdb.python_fu_new_grid_image_2010()
+    initialdir = folder_from_pickle()
+    pdfpath = open_pdf(initialdir=initialdir)
     floating_sel = copy_pdf_to_img(pdfpath, img, x_offset=25, \
                                    y_offset=25)
 ##     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
@@ -430,7 +443,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load PDF",
+        "<Toolbox>/Lecture/Load/Load PDF",
         "",#"RGB*, GRAY*",
         [],
         [],
@@ -438,8 +451,9 @@ register(
     
 
 def load_any_jpg():
-    img = pdb.python_fu_new_grid_image()
-    jpgpath = open_jpg()
+    img = pdb.python_fu_new_grid_image_2010()
+    initialdir = folder_from_pickle()
+    jpgpath = open_jpg(initialdir=initialdir)
     floating_sel = copy_jpg_to_img(jpgpath, img, x_offset=25, \
                                    y_offset=25)
 ##     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
@@ -453,7 +467,7 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2009",
-        "<Toolbox>/Xtns/Languages/Ryan/Latex/Load JPG",
+        "<Toolbox>/Lecture/Load/Load JPG",
         "",#"RGB*, GRAY*",
         [],
         [],
