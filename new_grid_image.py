@@ -240,6 +240,7 @@ jpgtypes = [('jpg files', '*.jpg'), ('png files', '*.png'),\
 xcftypes = [('xcf file', '*.xcf')]
 
 import tk_simple_dialog
+import tk_msg_dialog
 #?bob = tkSimpleDialog.askinteger?
 #?tkSimpleDialog.askinteger?
 
@@ -716,6 +717,14 @@ register(
   )
 
 
+def slide_num_from_path(filepath):
+    folder, name = os.path.split(filepath)
+    fno, ext = os.path.splitext(name)
+    int_str = fno[-4:]
+    cur_slide = int(int_str)
+    return cur_slide
+    
+
 def my_open(dialog_func=open_xcf, filename=None):
     folder = get_path_from_pkl()
     if filename is None:
@@ -739,10 +748,7 @@ def my_open(dialog_func=open_xcf, filename=None):
     mydict = open_pickle()
     full_pat = os.path.join(mydict['lecture_path'], mydict['search_pat'])
     if filename.find(full_pat) == 0:
-        folder, name = os.path.split(filename)
-        fno, ext = os.path.splitext(name)
-        int_str = fno[-4:]
-        cur_slide = int(int_str)
+        cur_slide = slide_num_from_path(filename)
         mydict['current_slide'] = cur_slide
         save_pickle(mydict)
     
@@ -793,20 +799,26 @@ register(
 #  Fall 2010 Versions
 #
 #############################################
-def save_current_slide():
+def save_all_slides():
     img_list = gimp.image_list()
     N = len(img_list)
     print('img_list = ' + str(img_list))
     #Pdb.set_trace()
     mydict = open_pickle()
     full_pat = os.path.join(mydict['lecture_path'], mydict['search_pat'])
+    success = True
     for img in img_list:
         curname = img.filename
         if curname and curname.find(full_pat) == 0:
             if pdb.gimp_image_is_dirty(img):
-                my_save_2010(img)
+                out = my_save_2010(img)
+                if not out:
+                    #if any one save fails, success is False
+                    success = False
             else:
                 print('not saving clean image: ' + curname)
+    return success
+
 
 
 def close_all(N=10):
@@ -835,9 +847,10 @@ def open_or_create_slide(mydict, verbosity=1):
 
 def _save_and_close(save=True, close=True):
     if save:
-        save_current_slide()
-    if close:
+        success = save_all_slides()
+    if close and success:
         close_all()
+    return success
 
 
 def build_slide_path(mydict):
@@ -848,7 +861,10 @@ def build_slide_path(mydict):
 
     
 def open_or_create_next_slide(save=True, close=True):
-    _save_and_close(save=save, close=close)
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return
     mydict = open_pickle()
     next_slide = mydict['current_slide'] + 1
     mydict['current_slide'] = next_slide
@@ -856,7 +872,10 @@ def open_or_create_next_slide(save=True, close=True):
 
 
 def open_previous_slide(save=True, close=True):
-    _save_and_close(save=save, close=close)
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return
     mydict = open_pickle()
     prev_slide = mydict['current_slide'] - 1
     mydict['current_slide'] = prev_slide
@@ -875,14 +894,22 @@ def find_last_slide_ind():
             return n
         
 
-def jump_to_first_slide():
+def jump_to_first_slide(save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return
     mydict = open_pickle()
     mydict['current_slide'] = 1
     save_pickle(mydict)
     open_or_create_slide(mydict)
 
 
-def jump_to_last_slide():
+def jump_to_last_slide(save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return
     ind = find_last_slide_ind()
     mydict = open_pickle()
     mydict['current_slide'] = ind
@@ -1066,10 +1093,23 @@ def _really_save(img, savepath):
     pdb.gimp_image_clean_all(img)
     gimp.displays_flush()
 
+
+def check_for_floating(img):
+    for layer in img.layers:
+        if layer.name == 'Pasted Layer':
+            slide_num = slide_num_from_path(img.filename)
+            msg = 'Please anchor floating selection for slide %i' % slide_num
+            W = tk_msg_dialog.myWindow(msg)
+            return True
+
     
 def my_save_2010(img, drawable=None):
     path1 = img.filename
 
+    if check_for_floating(img):
+        #exit this method
+        return False
+    
     mydict = open_pickle()
     folder = mydict['lecture_path']
     search_pat = mydict['search_pat']
@@ -1077,7 +1117,7 @@ def my_save_2010(img, drawable=None):
     #Test 1
     if path1.find(search_folder) != 0:
         print('problem with filename: ' + path1)
-        return
+        return False
 
     #Test 2
     myint = get_notes_layer_slide_num(img)
@@ -1095,7 +1135,8 @@ def my_save_2010(img, drawable=None):
     else:
         png_path = save_as(initialdir=folder, \
                            initialfile=new_name)
-        _really_save(img, png_path)    
+        _really_save(img, png_path)
+    return True
 
 
 
@@ -1109,9 +1150,95 @@ register(
         "<Image>/Lecture/_Save Grid Image 2010",
         "RGB*, GRAY*",
         [],
-        [],
+        [(PF_INT, 'success', 'Boolean integer for whether or not the image saved correctly')],
         my_save_2010)
 
+
+def reset_pickle():
+    """Use this at the beginning of a lecture to set the pickle to
+    slide 0 of the correct class based on the time and day of the
+    week."""
+    debug = 0
+    #debugging - set to first day of class
+    if debug == 1:
+        now = time.strptime('08/23/10 8:55', '%m/%d/%y %H:%M')
+    elif debug == 2:
+        now = time.strptime('08/24/10 12:15', '%m/%d/%y %H:%M')
+    else:
+        now = time.localtime()
+    
+    mydict = {}
+    mydict['current_slide'] = 0
+    mydict['date_stamp'] = time.strftime('%m/%d/%y', now)
+    date_str = time.strftime('%m_%d_%y', now)
+
+    found = False
+    if (now.tm_wday in [0,2]) and (now.tm_hour < 11):
+        found = True
+        course = '458'
+        root = '/home/ryan/siue/classes/mechatronics/%i/lectures/%s' % \
+               (now.tm_year, date_str)
+    elif (now.tm_wday in [1,3]) and (11 < now.tm_hour < 15):
+        found = True
+        course = '482'
+        root = '/home/ryan/siue/classes/482/%i/lectures/%s' % \
+               (now.tm_year, date_str)
+
+
+    if found:
+        mydict['course_num'] = course
+        mydict['pat'] = 'ME' + course + '_' + date_str + '_%0.4i.xcf'
+        mydict['search_pat'] = 'ME' + course +'_' + date_str
+        mydict['lecture_path'] = rwkos.FindFullPath(root)
+        save_pickle(mydict)
+    else:
+        msg = 'Could not determine the course\n' + \
+              'based on the current day/time.\n' + \
+              '\n' + \
+              'now.tm_wday = %s\n' % now.tm_wday + \
+              'now.tm_hour = %s\n' % now.tm_hour + \
+              '\n' + \
+              'Run the script gimp_lecture_prep.py.'
+        W = tk_msg_dialog.myWindow(msg)
+
+
+register(
+        "reset_pickle",
+        "Reset lecture pickle based on current day/time",
+        "Reset lecture pickle based on current day/time",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2010",
+        "<Toolbox>/Lecture/_Reset Pickle",
+        "",
+        [],
+        [],
+        reset_pickle)
+
+
+def show_pickle():
+    """Load the lecture pickle and display it on a Tk message dialog."""
+    mydict = open_pickle()
+    msg = ''
+    line_pat = '%s: %s\n'
+    for key, value in mydict.iteritems():
+        curline = line_pat % (key, value)
+        msg += curline
+    W = tk_msg_dialog.myWindow(msg)
+
+
+register(
+        "show_pickle",
+        "Show the lecture pickle.",
+        "Show the lecture pickle.",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2010",
+        "<Toolbox>/Lecture/_Show Pickle",
+        "",
+        [],
+        [],
+        show_pickle)
 
 #############################################
 #
