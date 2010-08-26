@@ -26,9 +26,15 @@ Linux = rwkos.amiLinux()
 import pygimp_lecture_utils
 from pygimp_lecture_utils import set_lecture_path, get_course_number, \
      get_path_from_pkl, graph_path, get_date_for_slide, \
+     save_as, save_as_jpg, \
+     find_graph_ind, find_notes_layer, get_notes_layer_slide_num, \
      get_slide_num_filename, \
      log_msg, open_pickle, save_pickle, \
-     folder_from_pickle
+     folder_from_pickle, \
+     save_all_slides, \
+     close_all, _save_and_close, \
+     my_save_2010, _really_save, \
+     slide_num_from_path
 
 import pygimp_lecture_utils as PGLU
 
@@ -83,35 +89,6 @@ import pygimp_lecture_utils as PGLU
 ##     folder = os.path.join(lecture_base, date_str)
 ##     return folder
 
-
-def find_graph_ind(img, name='graph_paper_2000_by_1300.png'):
-    N = len(img.layers)
-    for n in range(N):
-        if img.layers[n].name.find('graph_paper') == 0:
-            #img.layers[n].name == name:
-            return n
-
-
-def find_notes_layer(img, name='Notes Layer'):
-    N = len(img.layers)
-    for n in range(N):
-        if img.layers[n].name.find(name) == 0:
-            return n
-
-
-def get_notes_layer_slide_num(img, name='Notes Layer'):
-    ind = find_notes_layer(img, name)
-    layer_name = img.layers[ind].name
-    N = len(name)
-    rest = layer_name[N:]
-    #log_msg('rest:'+rest)
-    rest = rest.strip()
-    if rest:
-        myint = int(rest)
-        log_msg('myint:%i'%myint)
-        return myint
-    else:
-        return None
 
 
 def activate_notes_layer(img, name="Notes Layer"):
@@ -431,21 +408,6 @@ def save_it():
     filename = tkFileDialog.askopenfilename()
     return filename
 
-    
-def save_as(initialdir=None, initialfile=None):
-    filename = tkFileDialog.asksaveasfilename(initialdir=initialdir, \
-                                              initialfile=initialfile, \
-                                              filetypes=filetypes)
-    return filename
-
-
-def save_as_jpg(initialdir=None, initialfile=None):
-    filename = tkFileDialog.asksaveasfilename(initialdir=initialdir, \
-                                              initialfile=initialfile, \
-                                              filetypes=jpgtypes)
-    return filename
-
-
 
 def my_save(img, drawable):
     ind = find_graph_ind(img)
@@ -715,14 +677,6 @@ register(
   [],
   batch_xcf_to_png
   )
-
-
-def slide_num_from_path(filepath):
-    folder, name = os.path.split(filepath)
-    fno, ext = os.path.splitext(name)
-    int_str = fno[-4:]
-    cur_slide = int(int_str)
-    return cur_slide
     
 
 def my_open(dialog_func=open_xcf, filename=None):
@@ -799,38 +753,38 @@ register(
 #  Fall 2010 Versions
 #
 #############################################
-def save_all_slides():
-    img_list = gimp.image_list()
-    N = len(img_list)
-    print('img_list = ' + str(img_list))
-    #Pdb.set_trace()
-    mydict = open_pickle()
-    full_pat = os.path.join(mydict['lecture_path'], mydict['search_pat'])
-    success = True
-    for img in img_list:
-        curname = img.filename
-        if curname and curname.find(full_pat) == 0:
-            if pdb.gimp_image_is_dirty(img):
-                out = my_save_2010(img)
-                if not out:
-                    #if any one save fails, success is False
-                    success = False
-            else:
-                print('not saving clean image: ' + curname)
-    return success
+## def save_all_slides():
+##     img_list = gimp.image_list()
+##     N = len(img_list)
+##     print('img_list = ' + str(img_list))
+##     #Pdb.set_trace()
+##     mydict = open_pickle()
+##     full_pat = os.path.join(mydict['lecture_path'], mydict['search_pat'])
+##     success = True
+##     for img in img_list:
+##         curname = img.filename
+##         if curname and curname.find(full_pat) == 0:
+##             if pdb.gimp_image_is_dirty(img):
+##                 out = my_save_2010(img)
+##                 if not out:
+##                     #if any one save fails, success is False
+##                     success = False
+##             else:
+##                 print('not saving clean image: ' + curname)
+##     return success
 
 
 
-def close_all(N=10):
-    if gimp.image_list():
-        for i in range(N):
-            disp = gimp._id2display(i)
-            if disp is not None:
-                #Pdb.set_trace()
-                try:
-                    pdb.gimp_display_delete(disp)
-                except:
-                    print('problem deleting disp # ' + str(i))
+## def close_all(N=10):
+##     if gimp.image_list():
+##         for i in range(N):
+##             disp = gimp._id2display(i)
+##             if disp is not None:
+##                 #Pdb.set_trace()
+##                 try:
+##                     pdb.gimp_display_delete(disp)
+##                 except:
+##                     print('problem deleting disp # ' + str(i))
             
     
 def open_or_create_slide(mydict, verbosity=1):
@@ -845,12 +799,12 @@ def open_or_create_slide(mydict, verbosity=1):
         new_grid_image_2010()#this function saves the pickle
 
 
-def _save_and_close(save=True, close=True):
-    if save:
-        success = save_all_slides()
-    if close and success:
-        close_all()
-    return success
+## def _save_and_close(save=True, close=True):
+##     if save:
+##         success = save_all_slides()
+##     if close and success:
+##         close_all()
+##     return success
 
 
 def build_slide_path(mydict):
@@ -1068,75 +1022,6 @@ register("zero_current_slide",
      [],
      zero_current_slide)
 
-
-def _really_save(img, savepath):
-    ind = find_graph_ind(img)
-
-    if ind:
-        img.layers[ind].visible = False
-
-    pne, ext = os.path.splitext(savepath)
-    xcf_path = pne + '.xcf'
-    png_path = pne + '.png'
-    pdb.gimp_selection_all(img)
-    pdb.gimp_edit_copy_visible(img)
-    img2 = pdb.gimp_edit_paste_as_new()
-    drawable = img.layers[0]
-    pdb.gimp_xcf_save(1, img, drawable, xcf_path, xcf_path)
-    #img.filename = xcf_path
-    flat_layer = pdb.gimp_image_flatten(img2)
-    #gimp.Display(img2)
-    pdb.gimp_file_save(img2, flat_layer, png_path, png_path)
-    pdb.gimp_image_delete(img2)
-    if ind:
-        img.layers[ind].visible = True
-    pdb.gimp_image_clean_all(img)
-    gimp.displays_flush()
-
-
-def check_for_floating(img):
-    for layer in img.layers:
-        if layer.name == 'Pasted Layer':
-            slide_num = slide_num_from_path(img.filename)
-            msg = 'Please anchor floating selection for slide %i' % slide_num
-            W = tk_msg_dialog.myWindow(msg)
-            return True
-
-    
-def my_save_2010(img, drawable=None):
-    path1 = img.filename
-
-    if check_for_floating(img):
-        #exit this method
-        return False
-    
-    mydict = open_pickle()
-    folder = mydict['lecture_path']
-    search_pat = mydict['search_pat']
-    search_folder = os.path.join(folder, search_pat)
-    #Test 1
-    if path1.find(search_folder) != 0:
-        print('problem with filename: ' + path1)
-        return False
-
-    #Test 2
-    myint = get_notes_layer_slide_num(img)
-    name2 = mydict['pat'] % myint
-    path2 = os.path.join(folder, name2)
-
-    int3 = mydict['current_slide']
-    #if (int3 == myint) and (path1 == path2):
-    print('path1 = ' + path1)
-    print('path2 = ' + path2)
-
-    if path1 == path2:
-        #We have a pretty sure match
-        _really_save(img, path1)    
-    else:
-        png_path = save_as(initialdir=folder, \
-                           initialfile=new_name)
-        _really_save(img, png_path)
-    return True
 
 
 

@@ -30,9 +30,17 @@ offset_name = 'offsets.txt'
 offset_path = os.path.join(cache_dir, offset_name)
 temp_name = 'Latex TEMP'
 
+#from new_grid_image import _save_and_close
 
 import pygimp_lecture_utils
-from pygimp_lecture_utils import folder_from_pickle
+from pygimp_lecture_utils import folder_from_pickle, \
+     save_all_slides, \
+     close_all, _save_and_close, \
+     my_save_2010, rst_is_blank, \
+     rst_to_png_all_three, rst_to_png_one_path, \
+     folder_and_pngpath_from_rstpath
+
+     
 
 def get_upper_left_selection(img, drawable):
     bounds = pdb.gimp_selection_bounds(img)
@@ -343,7 +351,12 @@ def copy_png_to_img(png_path, img, x_offset=None, y_offset=None, \
                             autocrop=autocrop)
 
 
-def load_outline_png(folder=None):
+
+def load_outline_png(folder=None, save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return    
     myname = 'outline1.png'
     if folder is None:
         folder = folder_from_pickle()
@@ -379,12 +392,93 @@ register(
         [],
         load_outline_png)
 
+
+register(
+        "rst_to_png_all_three",
+        "Call rst_outline_gen.py for OAR",
+        "Call rst_outline_gen.py for outline, announcements, and reminders",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Lecture/Load/RST2PNG OAR (all 3)",
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        rst_to_png_all_three)
+
+
 import tkFileDialog
 pngtypes = [('png files', '*.png')]
 pdftypes = [('pdf files', '*.pdf')]
 jpgtypes = [('jpg files', '*.jpg')]
+rsttypes = [('rst files', '*.rst')]
+
 import tk_simple_dialog
 
+def one_png_to_slide(rstpath):
+    folder, pngpath = folder_and_pngpath_from_rstpath(rstpath) 
+    if os.path.exists(rstpath):
+        if not rst_is_blank(rstpath):
+            if os.path.exists(pngpath):
+                img = pdb.python_fu_new_grid_image_2010()
+                floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
+                                               y_offset=25)
+                if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+                    pdb.gimp_floating_sel_anchor(floating_sel)
+                my_save_2010(img)
+
+
+def OAR_pngs_to_slides():
+    filenames = ['outline','announcements','reminders']
+    folder = folder_from_pickle()
+    exclude_dir = os.path.join(folder, 'exclude')
+    for filename in filenames:
+        rstname = filename + '.rst'
+        rstpath = os.path.join(exclude_dir, rstname)
+        one_png_to_slide(rstpath)
+
+
+
+register(
+        "OAR_pngs_to_slides",
+        "load OAR pngs onto slides",
+        "load OAR pngs onto slides",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Lecture/Load/make OAR slides (all 3)",
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        OAR_pngs_to_slides)
+
+
+
+def rst_to_slide(save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return    
+    rstpath = open_rst()
+    print('rstpath = ' + rstpath)
+    rst_to_png_one_path(rstpath)
+    one_png_to_slide(rstpath)
+    
+
+register(
+        "rst_to_slide",
+        "load one RST file onto a slide",
+        "load one RST file onto a slide",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Lecture/Load/_RST to slide (one)",    
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        rst_to_slide)
+
+    
 def open_png(initialdir=None, initialfile=None):
     filename = tkFileDialog.askopenfilename(initialfile=initialfile,
                                             initialdir=initialdir,
@@ -403,9 +497,30 @@ def open_jpg(initialdir=None, initialfile=None):
                                             filetypes=jpgtypes)
     return filename
 
-def load_any_png():
+
+def open_rst(initialdir=None, initialfile=None):
+    if initialdir is None:
+        initialdir = folder_from_pickle()
+        tempdir = os.path.join(initialdir, 'exclude')
+        if os.path.exists(tempdir):
+            initialdir = tempdir
+    filename = tkFileDialog.askopenfilename(initialfile=initialfile,
+                                            initialdir=initialdir,
+                                            filetypes=rsttypes)
+    return filename
+
+
+
+def load_any_png(save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return    
     img = pdb.python_fu_new_grid_image_2010()
     initialdir = folder_from_pickle()
+    tempdir = os.path.join(initialdir, 'exclude')
+    if os.path.exists(tempdir):
+        initialdir = tempdir
     pngpath = open_png(initialdir=initialdir)
     floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
                                    y_offset=25)
@@ -426,7 +541,12 @@ register(
         [],
         load_any_png)
 
-def load_any_pdf():
+
+def load_any_pdf(save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return        
     img = pdb.python_fu_new_grid_image_2010()
     initialdir = folder_from_pickle()
     pdfpath = open_pdf(initialdir=initialdir)
@@ -450,7 +570,11 @@ register(
         load_any_pdf)
     
 
-def load_any_jpg():
+def load_any_jpg(save=True, close=True):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return    
     img = pdb.python_fu_new_grid_image_2010()
     initialdir = folder_from_pickle()
     jpgpath = open_jpg(initialdir=initialdir)
