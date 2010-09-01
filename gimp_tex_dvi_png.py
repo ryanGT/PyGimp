@@ -224,8 +224,8 @@ def scale_image(img, max_w, max_h, debug=0):
         print('img.width = '+str(img.width))
         print('img.height = '+str(img.height))
     if (img.width > max_w) or (img.height > max_h):
-        s1 = img.width/max_w
-        s2 = img.height/max_h
+        s1 = float(img.width)/float(max_w)
+        s2 = float(img.height)/float(max_h)
         ar = float(img.height)/float(img.width)
         if s1 > s2:
             if debug:
