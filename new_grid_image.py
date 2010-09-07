@@ -1049,6 +1049,8 @@ def reset_pickle():
         now = time.strptime('08/23/10 8:55', '%m/%d/%y %H:%M')
     elif debug == 2:
         now = time.strptime('08/24/10 12:15', '%m/%d/%y %H:%M')
+    elif debug == 3:
+        now = time.strptime('09/08/10 13:25', '%m/%d/%y %H:%M')
     else:
         now = time.localtime()
     
@@ -1067,6 +1069,11 @@ def reset_pickle():
         found = True
         course = '482'
         root = '/home/ryan/siue/classes/482/%i/lectures/%s' % \
+               (now.tm_year, date_str)
+    if (now.tm_wday == 2) and (now.tm_hour > 12):
+        found = True
+        course = '492'
+        root = '/home/ryan/siue/classes/mobile_robotics/%i/lectures/%s' % \
                (now.tm_year, date_str)
 
 
