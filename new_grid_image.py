@@ -368,7 +368,7 @@ register(
 
 
 def green_brush():
-    pdb.gimp_context_set_foreground((0,255,0))
+    pdb.gimp_context_set_foreground((0,160,0))
     
     
 register(
