@@ -7,6 +7,8 @@ from gimpfu import *
 import rwkos
 import pdb as Pdb
 
+from gimp_copy_utils import *
+
 Linux = rwkos.amiLinux()
 
 ##graph_path = '/home/ryan/siue/classes/graph_paper.png'
@@ -105,7 +107,8 @@ def move_resize_window():#timg, tdrawable):
         win = output.strip()#get id of active window
         movecmd = 'xdotool windowmove %s 0 0' % win
         os.system(movecmd)
-        sizecmd = 'xdotool windowsize %s 1024 700' % win
+        #sizecmd = 'xdotool windowsize %s 1024 700' % win
+        sizecmd = 'xdotool windowsize %s 1280 1000' % win
         os.system(sizecmd)
         ecmd = "xdotool key ctrl+shift+E"
         time.sleep(1.0)
@@ -785,7 +788,22 @@ register(
 ##                     pdb.gimp_display_delete(disp)
 ##                 except:
 ##                     print('problem deleting disp # ' + str(i))
-            
+
+def build_slide_path(mydict):
+    pat = mydict['pat']
+    filename = pat % mydict['current_slide']
+    filepath = os.path.join(mydict['lecture_path'], filename)
+    return filepath
+
+
+def build_next_outline_path(mydict):
+    pat = 'outline_%0.4i.png'
+    ind = mydict['outline_slide'] + 1
+    filename = pat % ind
+    exclude_dir = os.path.join(mydict['lecture_path'], 'exclude')
+    filepath = os.path.join(exclude_dir, filename)
+    return filepath
+
     
 def open_or_create_slide(mydict, verbosity=1):
     filepath = build_slide_path(mydict)
@@ -799,22 +817,63 @@ def open_or_create_slide(mydict, verbosity=1):
         new_grid_image_2010()#this function saves the pickle
 
 
-## def _save_and_close(save=True, close=True):
-##     if save:
-##         success = save_all_slides()
-##     if close and success:
-##         close_all()
-##     return success
+def check_for_next_outline_slide(mydict):
+    outline_path = build_next_outline_path(mydict)
+    return os.path.exists(outline_path)
 
 
-def build_slide_path(mydict):
-    pat = mydict['pat']
-    filename = pat % mydict['current_slide']
-    filepath = os.path.join(mydict['lecture_path'], filename)
-    return filepath
+def check_for_slide(mydict):
+    slidepath = build_slide_path(mydict)
+    return os.path.exists(slidepath)
 
+
+
+def open_outline_png(pngpath):
+    img = new_grid_image_2010()
+    floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
+                                   y_offset=25)
+    if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+        pdb.gimp_floating_sel_anchor(floating_sel)
+
+
+def open_or_create_next_slide(save=True, close=True, force_no_outline=False):
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return
+    mydict = open_pickle()
+    next_slide = mydict['current_slide'] + 1
+    mydict['current_slide'] = next_slide
+
+    if check_for_slide(mydict):
+        save_pickle(mydict)
+        slidepath = build_slide_path(mydict)
+        my_open(filename=slidepath)
+        return
     
-def open_or_create_next_slide(save=True, close=True):
+    if force_no_outline:
+        outline_bool = False
+    else:
+        outline_bool = check_for_next_outline_slide(mydict)
+
+    if outline_bool:
+        outline_path = build_next_outline_path(mydict)
+        next_outline_slide = mydict['outline_slide'] + 1
+        mydict['outline_slide'] = next_outline_slide
+        save_pickle(mydict)
+        
+        open_outline_png(outline_path)
+    else:
+        open_or_create_slide(mydict)
+
+
+
+def open_or_create_next_slide_no_outline(save=True, close=True):
+    return open_or_create_next_slide(save=save, close=close, \
+                                     force_no_outline=True)
+
+
+def open_or_create_next_slide_old(save=True, close=True):
     if save or close:
         success = _save_and_close(save=save, close=close)
         if not success:
@@ -824,6 +883,13 @@ def open_or_create_next_slide(save=True, close=True):
     mydict['current_slide'] = next_slide
     open_or_create_slide(mydict)
 
+
+## def _save_and_close(save=True, close=True):
+##     if save:
+##         success = save_all_slides()
+##     if close and success:
+##         close_all()
+##     return success
 
 def open_previous_slide(save=True, close=True):
     if save or close:
@@ -849,26 +915,29 @@ def find_last_slide_ind():
         
 
 def jump_to_first_slide(save=True, close=True):
-    if save or close:
-        success = _save_and_close(save=save, close=close)
-        if not success:
-            return
-    mydict = open_pickle()
-    mydict['current_slide'] = 1
-    save_pickle(mydict)
-    open_or_create_slide(mydict)
+    ## if save or close:
+    ##     success = _save_and_close(save=save, close=close)
+    ##     if not success:
+    ##         return
+    #mydict = open_pickle()
+    #mydict['current_slide'] = 0
+    #mydict['outline_slide'] = 0
+    #save_pickle(mydict)
+    W = tk_simple_dialog.reset_lecture_dialog()
+    open_or_create_next_slide()
+    #open_or_create_slide(mydict)
 
 
 def jump_to_last_slide(save=True, close=True):
-    if save or close:
-        success = _save_and_close(save=save, close=close)
-        if not success:
-            return
+    ## if save or close:
+    ##     success = _save_and_close(save=save, close=close)
+    ##     if not success:
+    ##         return
     ind = find_last_slide_ind()
     mydict = open_pickle()
-    mydict['current_slide'] = ind
+    mydict['current_slide'] = ind - 1
     save_pickle(mydict)
-    open_or_create_slide(mydict)
+    open_or_create_next_slide()
     
 
 register("jump_to_first_slide",
@@ -989,6 +1058,19 @@ register("open_or_create_next_slide",
          open_or_create_next_slide)
 
 
+register("open_or_create_next_slide_no_outline",
+         "Open next slide - but not an outline slide",
+         "Open or create next slide for class lectures (no outline)",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/Next Slide - No _Outline",
+         "",#RGB*, GRAY*",
+         [],
+         [],#(PF_IMAGE, 'img', 'the next slide')],
+         open_or_create_next_slide_no_outline)
+
+
 
 register("open_previous_slide",
          "Open previous slide for class lectures",
@@ -1043,7 +1125,7 @@ def reset_pickle():
     """Use this at the beginning of a lecture to set the pickle to
     slide 0 of the correct class based on the time and day of the
     week."""
-    debug = 0
+    debug = 4
     #debugging - set to first day of class
     if debug == 1:
         now = time.strptime('08/23/10 8:55', '%m/%d/%y %H:%M')
@@ -1051,11 +1133,14 @@ def reset_pickle():
         now = time.strptime('08/24/10 12:15', '%m/%d/%y %H:%M')
     elif debug == 3:
         now = time.strptime('09/08/10 13:25', '%m/%d/%y %H:%M')
+    elif debug == 4:
+        now = time.strptime('01/13/11 19:25', '%m/%d/%y %H:%M')
     else:
         now = time.localtime()
     
     mydict = {}
     mydict['current_slide'] = 0
+    mydict['outline_slide'] = 0
     mydict['date_stamp'] = time.strftime('%m/%d/%y', now)
     date_str = time.strftime('%m_%d_%y', now)
 
@@ -1069,6 +1154,11 @@ def reset_pickle():
         found = True
         course = '482'
         root = '/home/ryan/siue/classes/482/%i/lectures/%s' % \
+               (now.tm_year, date_str)
+    elif (now.tm_wday in [1,3]) and (18 < now.tm_hour < 22):
+        found = True
+        course = '592'
+        root = '/home/ryan/siue/classes/nonlinear_controls/%i/lectures/%s' % \
                (now.tm_year, date_str)
     if (now.tm_wday == 2) and (now.tm_hour > 12):
         found = True
@@ -1131,6 +1221,25 @@ register(
         [],
         [],
         show_pickle)
+
+def edit_pickle():
+    """Load and display the current lecture pickle in a
+    dialog that allows editting the values"""
+    W = tk_simple_dialog.lecture_pickle_dialog()
+
+
+register(
+        "edit_pickle",
+        "Edit the lecture pickle.",
+        "Edit the lecture pickle.",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2010",
+        "<Toolbox>/Lecture/_Edit Pickle",
+        "",
+        [],
+        [],
+        edit_pickle)
 
 #############################################
 #
