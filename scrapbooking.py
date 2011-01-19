@@ -7,8 +7,8 @@ from gimpfu import *
 import rwkos
 import pdb as Pdb
 import txt_mixin
-import pygimp_lecture_utils
-reload(pygimp_lecture_utils)
+#import pygimp_lecture_utils
+#reload(pygimp_lecture_utils)
 
 Linux = rwkos.amiLinux()
 
@@ -79,7 +79,7 @@ def new_4_by_6(landscape=False):
         
     img = gimp.Image(mywidth, myheight, RGB)
 
-    white_layer = gimp.Layer(img, "White Layer", width, height, \
+    white_layer = gimp.Layer(img, "White Layer", mywidth, myheight, \
                              RGB_IMAGE, 100, NORMAL_MODE)
     pdb.gimp_drawable_fill(white_layer, WHITE_FILL)
     img.add_layer(white_layer)
@@ -103,5 +103,24 @@ register("new_4_by_6",
          [],
          [(PF_IMAGE, 'img', 'the new image')],
          new_4_by_6)
+
+
+def new_6_by_4():
+    img = new_4_by_6(landscape=True)
+    return img
+
+
+register("new_6_by_4",
+         "A new image for scrapbooking",
+         "A new image for scrapbooking",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Ryan/scrapbooking/New _6 by 4",
+         "",#RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         new_6_by_4)
+
 
 main()
