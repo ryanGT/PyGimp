@@ -91,6 +91,33 @@ import pygimp_lecture_utils as PGLU
 ##     folder = os.path.join(lecture_base, date_str)
 ##     return folder
 
+def _feather_helper(feather_radius=0):
+    if feather_radius == None:
+        return False, 0.0
+    return True, feather_radius
+
+
+def _radius_helper(radius):
+    if isinstance(radius, tuple):
+        return radius
+    return radius, radius
+
+
+def select_by_color(drawable, color, threshold = 0,
+                    operation = 2,
+                    antialias = False, feather_radius = 0,
+                    sample_merged = False, select_transparent = False,
+                    select_criterion = 0, \
+                    feater_radius=0):
+    if drawable == None:
+        drawable = _active_drawable()
+    do_feather, feather_radius = _feather_helper(feater_radius)
+    feather_radius_x, feather_radius_y = _radius_helper(feather_radius)
+
+    pdb.gimp_by_color_select_full(drawable, color, threshold, operation,
+                                  antialias, do_feather, feather_radius_x,
+                                  feather_radius_y, sample_merged,
+                                  select_transparent, select_criterion)
 
 
 def activate_notes_layer(img, name="Notes Layer"):
@@ -834,6 +861,13 @@ def open_outline_png(pngpath):
                                    y_offset=25)
     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
         pdb.gimp_floating_sel_anchor(floating_sel)
+    if top_layer_is_Latex(img):
+        print('top_layer_is_Latex True')
+        select_by_color(img.layers[0], (255,255,255))
+        pdb.gimp_edit_clear(img.layers[0])
+        pdb.gimp_selection_none(img)
+        pdb.gimp_image_merge_down(img, img.layers[0],1)
+        
 
 
 def open_or_create_next_slide(save=True, close=True, force_no_outline=False):
