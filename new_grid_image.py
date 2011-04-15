@@ -140,7 +140,7 @@ def move_resize_window():#timg, tdrawable):
         ecmd = "xdotool key ctrl+shift+E"
         time.sleep(1.0)
         os.system(ecmd)
-    
+
 
 register(
         "move_resize_window",
@@ -567,6 +567,7 @@ def _open_by_int(next_int):
         my_open(filename=xcf_name)
     else:
         raise_img(img)
+    #pdb.gimp_selection_none(img)
     
 
 def open_next(img, drawable):
@@ -740,6 +741,8 @@ def my_open(dialog_func=open_xcf, filename=None):
     gimp.displays_flush()
     time.sleep(0.5)
     move_resize_window()#timg, tdrawable)
+    #pdb.gimp_selection_none(img)
+
 
         
 ## register(
@@ -867,6 +870,7 @@ def open_outline_png(pngpath):
         pdb.gimp_edit_clear(img.layers[0])
         pdb.gimp_selection_none(img)
         pdb.gimp_image_merge_down(img, img.layers[0],1)
+    #pdb.gimp_selection_none(img)
         
 
 
@@ -1063,6 +1067,7 @@ def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
     ## title_in = img.filename
     ## log_msg('title_in=%s' % title_in)
     move_resize_window()
+    #pdb.gimp_selection_none(img)
     return img
 
 
