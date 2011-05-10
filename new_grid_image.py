@@ -7,6 +7,8 @@ from gimpfu import *
 import rwkos
 import pdb as Pdb
 
+import vibrations_gimp
+
 from gimp_copy_utils import *
 
 Linux = rwkos.amiLinux()
@@ -1283,6 +1285,38 @@ register(
 #############################################
 #
 # End 2010
+#
+#############################################
+
+
+#############################################
+#
+# Vibrations 2011
+#
+#############################################
+
+
+def insert_vibrations_sketch():
+    mypath = vibrations_gimp.get_path_for_mass_spring_damper_sketch()
+    print('mypath = ' + str(mypath))
+    
+register(
+        "insert_vibrations_sketch",
+        "Insert a vibrations sketch .",
+        "Insert a one or two DOF mass/spring/damper sketch.",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2011",
+        "<Toolbox>/Lecture/_Insert Vibrations Sketch",
+        "",
+        [],
+        [],
+        insert_vibrations_sketch)
+
+
+#############################################
+#
+# End Vibrations 2011
 #
 #############################################
 
