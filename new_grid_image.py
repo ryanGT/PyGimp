@@ -1296,9 +1296,27 @@ register(
 #############################################
 
 
-def insert_vibrations_sketch():
+def insert_vibrations_sketch(img, drawable):
     mypath = vibrations_gimp.get_path_for_mass_spring_damper_sketch()
     print('mypath = ' + str(mypath))
+    if mypath is not None:
+        floating_sel = copy_jpg_to_img(mypath, img, x_offset=25, \
+                                       y_offset=25)
+
+## register(
+##         "my_save",
+##         "Save grid image with grid not visible",
+##         "Save grid image with grid not visible",
+##         "Ryan Krauss",
+##         "Ryan Krauss",
+##         "2009",
+##         "<Image>/Filters/Ryan/2009/_Save Grid Image",
+##         "RGB*, GRAY*",
+##         [],
+##         [],
+##         my_save)
+
+
     
 register(
         "insert_vibrations_sketch",
@@ -1307,8 +1325,8 @@ register(
         "Ryan Krauss",
         "Ryan Krauss",
         "2011",
-        "<Toolbox>/Lecture/_Insert Vibrations Sketch",
-        "",
+        "<Image>/Lecture/_Insert Vibrations Sketch",
+        "RGB*, GRAY*",
         [],
         [],
         insert_vibrations_sketch)
