@@ -134,13 +134,17 @@ def move_resize_window():#timg, tdrawable):
                              stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output, errors = p.communicate()
         win = output.strip()#get id of active window
-        movecmd = 'xdotool windowmove %s 0 0' % win
-        os.system(movecmd)
-        #sizecmd = 'xdotool windowsize %s 1024 700' % win
-        sizecmd = 'xdotool windowsize %s 1280 1000' % win
-        os.system(sizecmd)
+        #this was important on my old laptop where I didn't want the image
+        #maximized
+        ## movecmd = 'xdotool windowmove %s 0 0' % win
+        ## os.system(movecmd)
+        ## #sizecmd = 'xdotool windowsize %s 1024 700' % win
+        ## sizecmd = 'xdotool windowsize %s 1280 1000' % win
+        ## os.system(sizecmd)
+        maxcmd = "xdotool key alt+F10"
+        os.system(maxcmd)
         ecmd = "xdotool key ctrl+shift+E"
-        time.sleep(0.7)
+        time.sleep(0.5)
         os.system(ecmd)
 
 
