@@ -140,7 +140,7 @@ def move_resize_window():#timg, tdrawable):
         sizecmd = 'xdotool windowsize %s 1280 1000' % win
         os.system(sizecmd)
         ecmd = "xdotool key ctrl+shift+E"
-        time.sleep(1.0)
+        time.sleep(0.7)
         os.system(ecmd)
 
 
@@ -211,7 +211,7 @@ def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     pdb.gimp_image_clean_all(img)
     title_in = img.filename
     #log_msg('title_in=%s' % title_in)
-    move_resize_window()
+    #move_resize_window()
     return img
     
     
@@ -555,8 +555,8 @@ def raise_img(img):
     #gimp.Display(img)#<-- this seems to re-open the image or create a
     #new Display for it
     gimp.displays_flush()
-    time.sleep(0.5)
-    move_resize_window()#timg, tdrawable)
+    #time.sleep(0.5)
+    #move_resize_window()#timg, tdrawable)
     
 
 def _open_by_int(next_int):
@@ -741,9 +741,9 @@ def my_open(dialog_func=open_xcf, filename=None):
     
     out2 = gimp.Display(img)
     gimp.displays_flush()
-    time.sleep(0.5)
-    move_resize_window()#timg, tdrawable)
-    #pdb.gimp_selection_none(img)
+    #time.sleep(0.5)
+    #move_resize_window()#timg, tdrawable)
+    ####pdb.gimp_selection_none(img)
 
 
         
@@ -1068,7 +1068,7 @@ def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
     pdb.gimp_image_clean_all(img)
     ## title_in = img.filename
     ## log_msg('title_in=%s' % title_in)
-    move_resize_window()
+    #move_resize_window()
     #pdb.gimp_selection_none(img)
     return img
 
