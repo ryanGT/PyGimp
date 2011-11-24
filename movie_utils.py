@@ -19,7 +19,11 @@ txttypes = [('txt files', '*.txt'), ('all files', '.*')]
 import tk_simple_dialog
 import tk_msg_dialog
 
-base = '/home/ryan/ryan_personal/top_secret/'
+#base = '/home/ryan/ryan_personal/top_secret/'
+#outbase = '/mnt/personal/pictures/moms_movie_60th_bday/1280_by_720'
+base = '/media/SILVERHD/moms_movie_60th_bday/'
+outbase = '/media/SILVERHD/moms_movie_60th_bday/1280_by_720/'
+mombase = '/media/SILVERHD/moms_movie_60th_bday/'
 
 def open_txt(initialdir=base, initialfile=None):
     filename = tkFileDialog.askopenfilename(initialfile=initialfile,
@@ -199,16 +203,16 @@ def save(img, drawable):
     folder, filename = os.path.split(pathin)
     print('filename = ' + str(filename))
     #Pdb.set_trace()
-    root, month = os.path.split(folder)
+    root, dir = os.path.split(folder)
     #outbase = '/home/ryan/ryan_personal/top_secret/1280_by_720/'
-    outbase = '/media/FA_ext3/ryan_personal/top_secret/1280_by_720/'
-    outmonth = os.path.join(outbase, month)
-    if not os.path.exists(outmonth):
-        os.mkdir(outmonth)
-    #outdir = os.path.join(outmonth, 'frames')
+    #outbase = '/media/FA_ext3/ryan_personal/top_secret/1280_by_720/'
+    outbase = '/mnt/personal/pictures/moms_movie_60th_bday/1280_by_720'
+    outdir = os.path.join(outbase, dir)
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
+    #outdir = os.path.join(outdir, 'frames')
     #if not os.path.exists(outdir):
     #    os.mkdir(outdir)
-    outdir = outmonth
     filepath = os.path.join(outdir, filename)
     print('filepath = ' + str(filepath))
     pdb.gimp_file_save(img, drawable, filepath, filepath)
@@ -285,6 +289,35 @@ register("process_many_movie_paths",
          process_many_movie_paths)
 
 
+def process_all_paths_in_folder():
+    myfolder = tkFileDialog.askdirectory(initialfile=None, \
+                                         initialdir=mombase)
+    print("myfolder = " + str(myfolder))
+    pat = os.path.join(myfolder, "*.jpg")
+    pat2 = os.path.join(myfolder, "*.JPG")
+    files1 = glob.glob(pat)
+    files2 = glob.glob(pat2)
+    filt2 = [item for item in files2 if item not in files1]
+    mypaths = files1 + filt2
+    print('mypaths = ' + str(mypaths))
+    mypaths.sort()
+    for path in mypaths:
+        process_one_movie_path(path)
+
+
+register("process_all_paths_in_folder",
+         "Process movie frames glob",
+         "Process movie frames glob",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Ryan/movie/Process Movie Frames _Glob",
+         "",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         process_all_paths_in_folder)
+
+
 def open_txt_list(pathin=None):
     if pathin is None:
         pathin = open_txt()
@@ -339,7 +372,8 @@ def save_copy(img, savepath):
 
 
 def build_title_filename(ind):
-    outfolder = '/home/ryan/ryan_personal/top_secret/1280_by_720/intro'
+    #outfolder = '/home/ryan/ryan_personal/top_secret/1280_by_720/intro'
+    outfolder = '/media/SILVERHD/moms_movie_60th_bday/1280_by_720/intro/title_fadein'
     if not os.path.exists(outfolder):
         os.mkdir(outfolder)
     pat = 'title_fadein_frame%0.4i.jpg'
@@ -349,7 +383,7 @@ def build_title_filename(ind):
 
     
 def fade_in_layer(img, drawable):
-    startfi = 181
+    startfi = 31
     N = 30
     for i in range(N):
         savepath = build_title_filename(i+startfi)
@@ -372,7 +406,7 @@ register("fade_in_layer",
 
 
 def fade_out_layer(img, drawable):
-    startfi = 271
+    startfi = 121
     N = 30
     for i in range(N):
         savepath = build_title_filename(i+startfi)
@@ -397,7 +431,7 @@ register("fade_out_layer",
 
 def save_many_copies(img, drawable):
     """Save many copies of an image for movie making"""
-    startfi = 211 
+    startfi = 61 
     N = 60
     for i in range(N):
         savepath = build_title_filename(i+startfi)
@@ -417,5 +451,40 @@ register("save_many_copies",
          [],
          [(PF_IMAGE, 'img', 'the new image')],
          save_many_copies)
+
+
+def save_all_xcf_to_jpg():
+    myfolder = tkFileDialog.askdirectory(initialfile=None, \
+                                         initialdir=mombase)
+    print("myfolder = " + str(myfolder))
+    pat = os.path.join(myfolder, "*.xcf")
+    pat2 = os.path.join(myfolder, "*.XCF")
+    files1 = glob.glob(pat)
+    files2 = glob.glob(pat2)
+    filt2 = [item for item in files2 if item not in files1]
+    mypaths = files1 + filt2
+    print('mypaths = ' + str(mypaths))
+    mypaths.sort()
+    for path in mypaths:
+        pne, ext = os.path.splitext(path)
+        jpg_path = pne + '.jpg'
+        img = pdb.gimp_file_load(path, path)
+        pygimp_lecture_utils.save_flattened_copy(img, jpg_path)
+
+    return img
+
+
+register("save_all_xcf_to_jpg",
+         "Save all xcf files in the chosen directory to jpg",
+         "Save all xcf files in the chosen directory to jpg",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2011",
+         "<Toolbox>/Ryan/movie/_XCF to jpg",
+         "",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         save_all_xcf_to_jpg)
+
 
 main()

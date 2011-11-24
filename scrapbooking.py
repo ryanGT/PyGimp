@@ -123,4 +123,104 @@ register("new_6_by_4",
          new_6_by_4)
 
 
+def _my_select(img, x, y, width, height, dpi=300.0, convert=True):
+    feather = 0
+    feather_radius = 0
+    Replace = 2
+    if convert:
+        scale = dpi
+    else:
+        scale = 1.0
+
+    x_px = x*scale
+    y_px = y*scale
+    width_px = width*scale
+    height_px = height*scale
+    
+    pdb.gimp_rect_select(img, x_px, y_px, width_px, height_px, \
+                         Replace, feather, feather_radius)
+    
+
+def _my_fg_bucket_fill(drawable):
+    pdb.gimp_bucket_fill(drawable, 0, 0, 100, 0, 0, 0, 0)
+    
+
+def new_design_2_photos_first_layout(img, drawable):
+    gap = 0.2
+    
+    #img 0 25 100 50 REPLACE 0 0
+    x1 = 3.9
+    y1 = 1.0
+    w1 = 3.0
+    h1 = 3.0
+    b1 = y1 + h1
+    _my_select(img, x1, y1, w1, h1)
+    _my_fg_bucket_fill(drawable)
+
+    w2 = 2.0
+    h2 = 2.75
+    x2 = x1
+    y2 = y1 + h1 + gap
+    _my_select(img, x2, y2, w2, h2)
+    _my_fg_bucket_fill(drawable)
+
+    h3 = 4.0
+    w3 = 3.0
+    x3 = x2
+    y3 = y2 + h2 + gap
+    _my_select(img, x3, y3, w3, h3)
+    _my_fg_bucket_fill(drawable)
+
+    h4 = h2
+    w4 = 5.25
+    y4 = y2
+    x4 = x2 + w2 + gap
+    _my_select(img, x4, y4, w4, h4)
+    _my_fg_bucket_fill(drawable)
+
+    h5 = 2.0
+    w5 = 3.0
+    y5 = b1 - h5
+    x5 = x1 + w1 + gap
+    _my_select(img, x5, y5, w5, h5)
+    _my_fg_bucket_fill(drawable)
+
+    h6 = 2.0
+    w6 = 2.75
+    y6 = 2.9
+    r6 = x1 - gap
+    x6 = r6 - w6
+    _my_select(img, x6, y6, w6, h6)
+    _my_fg_bucket_fill(drawable)
+    
+    h7 = 3.0
+    w7 = 3.0
+    r7 = r6
+    x7 = r7 - w7
+    y7 = y6 + h6 + gap
+    _my_select(img, x7, y7, w7, h7)
+    _my_fg_bucket_fill(drawable)
+    
+    
+    #drawable, fill mode (fg), paint mode (normal), opacity,
+    #threshold, sample-merged, x, y - Note that x and y are only used
+    #if there is not selection
+    
+    print('yeah, I filled it')
+    return img
+    
+    
+register("new_design_2_photos_first_layout",
+         "Create digital scrapbooking layout #2",
+         "Create digital scrapbooking layout #2",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2011",
+         "<Image>/Filters/Ryan/scrapbooking/Digital/Create New Layout #2",
+         "RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         new_design_2_photos_first_layout)
+
+    
 main()
