@@ -222,5 +222,88 @@ register("new_design_2_photos_first_layout",
          [(PF_IMAGE, 'img', 'the new image')],
          new_design_2_photos_first_layout)
 
+
+def open_and_scale_img(filename, w, h):
+    img = pdb.gimp_file_load(filename, filename)
+    CUBIC = 2
+    #pdb.gimp_image_scale_full(img, w, h, CUBIC)
+    pdb.gimp_image_scale(img, w, h)
+    return img
+
+
+def Christmas_card_2011_layout(img, drawable):
+    total_w = 300.0*8
+    total_h = 300.0*4
     
+    #gap = 0.025*300
+    gap = 0
+    
+    #margin = 0.25*300
+    top_margin = 215#0.5*300
+    
+    w = 740
+    h = w
+
+    margin = int((total_w - 3*w - 2*gap)/2)
+
+    #create new layer
+    new_layer = gimp.Layer(img, "New Image Layer", total_w, total_h, \
+                           RGBA_IMAGE, 100, NORMAL_MODE)
+    pdb.gimp_drawable_fill(new_layer, TRANSPARENT_FILL)
+    img.add_layer(new_layer)
+
+    #image #1
+    x1 = margin
+    y1 = top_margin
+    _my_select(img, x1, y1, w, h, convert=False)
+    #_my_fg_bucket_fill(drawable)
+
+    path1 = '/home/ryan/Desktop/christmas_card_2011/DSC_0840.JPG'
+    img1 = open_and_scale_img(path1, w, h)
+    pdb.gimp_edit_copy_visible(img1)
+    float_layer = pdb.gimp_edit_paste(new_layer, 1)
+    pdb.gimp_floating_sel_anchor(float_layer)
+
+
+    x2 = margin + w + gap
+    y2 = y1
+    _my_select(img, x2, y2, w, h, convert=False)
+    #_my_fg_bucket_fill(drawable)
+
+    path2 = '/home/ryan/Desktop/christmas_card_2011/portrait_3_krausses.jpg'
+    img2 = open_and_scale_img(path2, w, h)
+    pdb.gimp_edit_copy_visible(img2)
+    float_layer = pdb.gimp_edit_paste(new_layer, 1)
+    pdb.gimp_floating_sel_anchor(float_layer)
+
+
+    x3 = margin + w*2 + gap*2
+    y3 = y1
+    _my_select(img, x3, y3, w, h, convert=False)
+    #_my_fg_bucket_fill(drawable)
+
+    path3 = '/home/ryan/Desktop/christmas_card_2011/joshua_hole_DSC_0247_w_775.jpg'
+    img3 = open_and_scale_img(path3, w, h)
+    pdb.gimp_edit_copy_visible(img3)
+    float_layer = pdb.gimp_edit_paste(new_layer, 1)
+    pdb.gimp_floating_sel_anchor(float_layer)
+
+    pdb.gimp_selection_none(img)
+
+    print('done')
+    return img
+
+
+register("Christmas_card_2011_layout",
+         "Create Christmas card layout",
+         "Create Christmas card layout",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2011",
+         "<Image>/Filters/Ryan/scrapbooking/Christmas card layout 2011", 
+         "RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         Christmas_card_2011_layout)
+
 main()
