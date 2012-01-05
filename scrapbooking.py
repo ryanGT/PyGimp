@@ -553,4 +553,125 @@ register("summer_vacation_2011_add_pics",
          [(PF_IMAGE, 'img', 'the new image')],
          summer_vacation_2011_add_pics)
 
+
+def dawn_christmas_2011(img, drawable):
+    gap = 0.2
+
+    summer_vaca_dir = '/home/ryan/ryan_personal/top_secret/Christmas_2011/Dawn/'
+
+    #create new layer
+    total_w = 3600
+    total_h = total_w
+    new_layer = gimp.Layer(img, "New Image Layer", total_w, total_h, \
+                           RGBA_IMAGE, 100, NORMAL_MODE)
+    pdb.gimp_drawable_fill(new_layer, TRANSPARENT_FILL)
+    img.add_layer(new_layer)
+
+    top_margin = (12.0 - (4.0+3.0+3.0+2*gap))/2.0
+    left_margin = (12.0 - (4.0+2.0+3.0+2*gap))/2.0
+
+    x_vert_1 = left_margin + 4.0 + 2.0 + gap#right vertical edge for
+        #top 3x4 and center 2x3
+
+
+    #img 0 25 100 50 REPLACE 0 0
+    w1 = 3.0
+    h1 = 4.0
+    x1 = x_vert_1 - w1
+    y1 = top_margin
+    b1 = y1 + h1
+    _my_select(img, x1, y1, w1, h1)
+    #name1 = 'Jan_2009_dsc_8712_3_by_4.jpg'
+    name1 = 'Jan_2009_dsc_8715_3_by_4.jpg'
+    path1 = os.path.join(summer_vaca_dir, name1)
+    scale_and_paste_img_onto_selected_area(path1, w1, h1, new_layer)
+    #_my_fg_bucket_fill(drawable)
+
+
+    h3 = 3.0
+    w3 = 4.0
+    x3 = left_margin
+    y3 = y1 + h1 + gap
+    _my_select(img, x3, y3, w3, h3)
+    name3 = 'at_picture_park_dsc_1947_4_by_3.jpg'
+    path3 = os.path.join(summer_vaca_dir, name3)
+    scale_and_paste_img_onto_selected_area(path3, w3, h3, new_layer)
+
+    ## ## _my_fg_bucket_fill(drawable)
+
+    h4 = 3.0
+    w4 = 2.0
+    y4 = y3
+    x4 = x3 + w3 + gap
+    _my_select(img, x4, y4, w4, h4)
+    name4 = 'sitting_w_Gramma_at_Grant_St_July_2010_csc_9487_2_by_3.jpg'
+    path4 = os.path.join(summer_vaca_dir, name4)
+    scale_and_paste_img_onto_selected_area(path4, w4, h4, new_layer)
+    ## _my_fg_bucket_fill(drawable)
+
+    h5 = 4.0
+    w5 = 3.0
+    y5 = y4 - 1.0
+    x5 = x4 + w4 + gap
+    _my_select(img, x5, y5, w5, h5)
+    name5 = 'Christmas_2008_DSC_6854_3_by_4.JPG'
+    path5 = os.path.join(summer_vaca_dir, name5)
+    scale_and_paste_img_onto_selected_area(path5, w5, h5, new_layer)
+
+    ## ## _my_fg_bucket_fill(drawable)
+
+    w2 = 2.75
+    h2 = 2.75
+    x2 = x5
+    y2 = y5 - h2 - gap
+    _my_select(img, x2, y2, w2, h2)
+    name2 = 'reading_Jan_2010_dsc_1586_square.jpg'
+    path2 = os.path.join(summer_vaca_dir, name2)
+    scale_and_paste_img_onto_selected_area(path2, w2, h2, new_layer)
+    ## _my_fg_bucket_fill(drawable)
+
+    h7 = 3.0
+    w7 = 4.0
+    x7 = x_vert_1 - w7 + 1.125
+    y7 = y3 + h3 + gap
+    _my_select(img, x7, y7, w7, h7)
+    name7 = 'Joshua_meets_Gramma_and_Grampa_Krauss_img_0840_4_by_3.jpg'
+    path7 = os.path.join(summer_vaca_dir, name7)
+    scale_and_paste_img_onto_selected_area(path7, w7, h7, new_layer)
+
+    ## _my_fg_bucket_fill(drawable)
+
+    h6 = 2.75
+    w6 = 2.75
+    y6 = y7
+    x6 = x7 - gap - w6
+    _my_select(img, x6, y6, w6, h6)
+    name6 = 'Jan_2009_w_Grampa_on_couch_dsc_8741_square.jpg'
+    path6 = os.path.join(summer_vaca_dir, name6)
+    scale_and_paste_img_onto_selected_area(path6, w6, h6, new_layer)
+
+    ## ## _my_fg_bucket_fill(drawable)
+
+
+    ## #drawable, fill mode (fg), paint mode (normal), opacity,
+    ## #threshold, sample-merged, x, y - Note that x and y are only used
+    ## #if there is not selection
+
+    ## print('yeah, I filled it')
+    return img
+
+
+register("dawn_christmas_2011",
+         "Dawn Christmas 2011 add pics",
+         "Dawn Christmas 2011 add pics",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2011",
+         "<Image>/Filters/Ryan/scrapbooking/Digital/Dawn Christmas 2011 Add Pics",
+         "RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         dawn_christmas_2011)
+
+
 main()
