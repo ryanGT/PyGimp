@@ -912,6 +912,17 @@ def open_or_create_next_slide(save=True, close=True, force_no_outline=False):
 
 
 
+def open_or_create_next_slide_no_close(save=True, \
+                                       force_no_outline=False):
+    open_or_create_next_slide(save=save, close=False, \
+                              force_no_outline=force_no_outline)
+
+
+def open_previous_slide_no_close(save=True):
+    open_previous_slide(save=save, close=False)
+
+    
+
 def open_or_create_next_slide_no_outline(save=True, close=True):
     return open_or_create_next_slide(save=save, close=close, \
                                      force_no_outline=True)
@@ -1103,6 +1114,22 @@ register("open_or_create_next_slide",
          open_or_create_next_slide)
 
 
+register("open_or_create_next_slide_no_close",
+         "Open next slide for class lectures without closing others",
+         "Open or create next slide for class lectures without auto closing",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/Next Slide - No Close",
+         "",#RGB*, GRAY*",
+         [],
+         [],#(PF_IMAGE, 'img', 'the next slide')],
+         open_or_create_next_slide_no_close)
+
+
+
+
+
 register("open_or_create_next_slide_no_outline",
          "Open next slide - but not an outline slide",
          "Open or create next slide for class lectures (no outline)",
@@ -1129,6 +1156,20 @@ register("open_previous_slide",
          [],
          [],#(PF_IMAGE, 'img', 'the next slide')],
          open_previous_slide)
+
+
+register("open_previous_slide_no_close",
+         "Open previous slide for class lectures without closing others.",
+         "Open or create previous slide for class lectures without auto-closing others",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Lecture/Previous Slide - No Close",
+         #"<Toolbox>/Xtns/Languages/Ryan/_Previous Slide",
+         "",#RGB*, GRAY*",
+         [],
+         [],#(PF_IMAGE, 'img', 'the next slide')],
+         open_previous_slide_no_close)
 
 
 def zero_current_slide():
