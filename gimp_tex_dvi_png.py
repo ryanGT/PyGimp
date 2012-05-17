@@ -40,7 +40,9 @@ from pygimp_lecture_utils import folder_from_pickle, \
      close_all, _save_and_close, \
      my_save_2010, rst_is_blank, \
      rst_to_png_all_three, rst_to_png_one_path, \
-     folder_and_pngpath_from_rstpath
+     folder_and_pngpath_from_rstpath, \
+     open_pickle, save_pickle
+
 
      
 
@@ -421,8 +423,32 @@ def open_rst(initialdir=None, initialfile=None):
     return filename
 
 
+png_pat = '(.*)_([0-9]+)\.png'
+png_p = re.compile(png_pat)
+
+def next_png_name():
+    png_name = None 
+    mydict = open_pickle()
+    if mydict.has_key('png_name'):
+        prev_png = mydict['png_name']
+        q = png_p.match(prev_png)
+        if q is not None:
+            prev_int = int(q.group(2))
+            cur_int = prev_int + 1
+            cur_int_str = '_%0.4i.png' % cur_int
+            png_name = q.group(1) + cur_int_str
+    return png_name
+
+
+def save_png_name_to_pickle(png_name):
+    mydict = open_pickle()
+    mydict['png_name'] = png_name
+    save_pickle(mydict)
+
 
 def load_any_png(save=True, close=True):
+    suggested_name = next_png_name()
+    print('suggested_name = ' + str(suggested_name))
     if save or close:
         success = _save_and_close(save=save, close=close)
         if not success:
@@ -432,7 +458,9 @@ def load_any_png(save=True, close=True):
     tempdir = os.path.join(initialdir, 'exclude')
     if os.path.exists(tempdir):
         initialdir = tempdir
-    pngpath = open_png(initialdir=initialdir)
+    pngpath = open_png(initialdir=initialdir, initialfile=suggested_name)
+    folder, png_name = os.path.split(pngpath)
+    save_png_name_to_pickle(png_name)
     floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
                                    y_offset=25)
     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
@@ -451,6 +479,44 @@ register(
         [],
         [],
         load_any_png)
+
+def load_next_png(save=True, close=True):
+    suggested_name = next_png_name()
+    if not suggested_name:
+        return
+    initialdir = folder_from_pickle()
+    tempdir = os.path.join(initialdir, 'exclude')
+    pngpath = os.path.join(tempdir, suggested_name)
+    if not os.path.exists(pngpath):
+        return
+    print('pngpath = ' + str(pngpath))
+    if save or close:
+        success = _save_and_close(save=save, close=close)
+        if not success:
+            return    
+    img = pdb.python_fu_new_grid_image_2010()
+
+    folder, png_name = os.path.split(pngpath)
+    save_png_name_to_pickle(png_name)
+
+    floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
+                                   y_offset=25)
+    if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
+        pdb.gimp_floating_sel_anchor(floating_sel)
+
+
+register(
+        "load_next_png",
+        "Load next png into file",
+        "Load png from pyp into file",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2009",
+        "<Toolbox>/Lecture/Load/Load Next PNG",
+        "",#"RGB*, GRAY*",
+        [],
+        [],
+        load_next_png)
 
 
 def load_any_pdf(save=True, close=True):
