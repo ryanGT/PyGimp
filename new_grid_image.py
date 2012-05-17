@@ -129,22 +129,22 @@ def activate_notes_layer(img, name="Notes Layer"):
 
 def move_resize_window():#timg, tdrawable):
     if Linux:
-        import subprocess
-        p = subprocess.Popen(['xdotool','getactivewindow'], \
-                             stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        output, errors = p.communicate()
-        win = output.strip()#get id of active window
-        #this was important on my old laptop where I didn't want the image
-        #maximized
-        ## movecmd = 'xdotool windowmove %s 0 0' % win
-        ## os.system(movecmd)
-        ## #sizecmd = 'xdotool windowsize %s 1024 700' % win
-        ## sizecmd = 'xdotool windowsize %s 1280 1000' % win
-        ## os.system(sizecmd)
-        maxcmd = "xdotool key alt+F10"
+        ## import subprocess
+        ## p = subprocess.Popen(['xdotool','getactivewindow'], \
+        ##                      stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        ## output, errors = p.communicate()
+        ## win = output.strip()#get id of active window
+        ## #this was important on my old laptop where I didn't want the image
+        ## #maximized
+        ## ## movecmd = 'xdotool windowmove %s 0 0' % win
+        ## ## os.system(movecmd)
+        ## ## #sizecmd = 'xdotool windowsize %s 1024 700' % win
+        ## ## sizecmd = 'xdotool windowsize %s 1280 1000' % win
+        ## ## os.system(sizecmd)
+        maxcmd = "xdotool key ctrl+super+Up"
         os.system(maxcmd)
         ecmd = "xdotool key ctrl+shift+E"
-        time.sleep(0.5)
+        time.sleep(0.1)
         os.system(ecmd)
 
 
@@ -1084,6 +1084,7 @@ def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
     ## title_in = img.filename
     ## log_msg('title_in=%s' % title_in)
     #move_resize_window()
+    #print('just tried to move_resize_window')
     #pdb.gimp_selection_none(img)
     return img
 
