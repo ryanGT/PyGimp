@@ -968,7 +968,12 @@ def find_last_slide_ind():
             n -= 1
             return n
         
+def _ryan_init():
+    pdb.python_fu_autosave()
+    pdb.python_fu_black_brush()
+    pdb.python_fu_set_pencil_ryan_dynamics()
 
+    
 def jump_to_first_slide(save=True, close=True):
     ## if save or close:
     ##     success = _save_and_close(save=save, close=close)
@@ -980,6 +985,7 @@ def jump_to_first_slide(save=True, close=True):
     #save_pickle(mydict)
     W = tk_simple_dialog.reset_lecture_dialog()
     open_or_create_next_slide()
+    _ryan_init()
     #open_or_create_slide(mydict)
 
 
@@ -993,6 +999,7 @@ def jump_to_last_slide(save=True, close=True):
     mydict['current_slide'] = ind - 1
     save_pickle(mydict)
     open_or_create_next_slide()
+    _ryan_init()
     
 
 register("jump_to_first_slide",
@@ -1382,6 +1389,112 @@ register(
 #
 # End Vibrations 2011
 #
+#############################################
+
+
+#############################################
+#
+# Brush Dynamics (GIMP 2.8)
+#
+#############################################
+def get_brush_dynamics():
+    brush_str = pdb.gimp_context_get_dynamics()
+    print('brush_str = ' + str(brush_str))
+    return brush_str
+
+
+register(
+        "get_brush_dynamics",
+        "Get the brush dynamics.",
+        "Get the brush dynamics.",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2012",
+        "<Toolbox>/Lecture/Brushes/Dynamics/Get Brush Dynamics",
+        "",
+        [],
+        [],
+        get_brush_dynamics)
+
+
+def _set_dynamics(dynamics_str):
+    pdb.gimp_context_set_dynamics(dynamics_str)
+
+    
+def set_pencil_ryan_dynamics():
+    _set_dynamics("Pencil Ryan")
+
+
+register("set_pencil_ryan_dynamics",
+         "Set the brush dynamics to Pencil Ryan.",
+         "Set the brush dynamics to Pencil Ryan.", 
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2012",
+         "<Toolbox>/Lecture/Brushes/Dynamics/Set Pencil Ryan",
+         "",
+         [],
+         [],
+         set_pencil_ryan_dynamics)
+
+
+def set_pen_generic_dynamics():
+    _set_dynamics("Pen Generic")
+
+
+register("set_pen_generic_dynamics",
+         "Set the brush dynamics to Pen Generic.",
+         "Set the brush dynamics to Pen Generic.", 
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2012",
+         "<Toolbox>/Lecture/Brushes/Dynamics/Set Pen Generic",
+         "",
+         [],
+         [],
+         set_pen_generic_dynamics)
+
+
+def toggle_pen_and_pencil_dynamics():
+    cur_str = get_brush_dynamics()
+    if cur_str == 'Pen Generic':
+        _set_dynamics('Pencil Ryan')
+    elif cur_str == 'Pencil Ryan':
+        _set_dynamics('Pen Generic')
+    else:
+        #default case
+        _set_dynamics('Pencil Ryan')
+
+
+register("toggle_pen_and_pencil_dynamics",
+         "Toggle the brush dynamics between Pen and Pencil Ryan.",
+         "Toggle the brush dynamics between Pen and Pencil Ryan.",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2012",
+         "<Toolbox>/Lecture/Brushes/Dynamics/Toggle between Pen and Pencil Ryan",
+         "",
+         [],
+         [],
+         toggle_pen_and_pencil_dynamics)
+
+def stroke_active_path(img, drawable):
+    vectors = pdb.gimp_image_get_active_vectors(img)
+    pdb.gimp_edit_stroke_vectors(drawable, vectors)
+
+
+register("stroke_active_path",
+         "Stroke Active Path",
+         "Stroke Active Path",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2012",
+         "<Image>/Filters/Ryan/Lecture/Stroke Active Path",
+         "RGB*, GRAY*",
+         [],
+         [],
+         stroke_active_path)
+    
 #############################################
 
 
