@@ -970,8 +970,8 @@ def find_last_slide_ind():
         
 def _ryan_init():
     pdb.python_fu_autosave()
-    pdb.python_fu_black_brush()
-    pdb.python_fu_set_pencil_ryan_dynamics()
+    #pdb.python_fu_black_brush()
+    #pdb.python_fu_set_pencil_ryan_dynamics()
 
     
 def jump_to_first_slide(save=True, close=True):
@@ -985,7 +985,7 @@ def jump_to_first_slide(save=True, close=True):
     #save_pickle(mydict)
     W = tk_simple_dialog.reset_lecture_dialog()
     open_or_create_next_slide()
-    _ryan_init()
+    _ryan_init()    
     #open_or_create_slide(mydict)
 
 
@@ -999,7 +999,7 @@ def jump_to_last_slide(save=True, close=True):
     mydict['current_slide'] = ind - 1
     save_pickle(mydict)
     open_or_create_next_slide()
-    _ryan_init()
+    #_ryan_init()
     
 
 register("jump_to_first_slide",
