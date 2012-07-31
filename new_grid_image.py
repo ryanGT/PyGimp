@@ -141,7 +141,8 @@ def move_resize_window():#timg, tdrawable):
         ## ## #sizecmd = 'xdotool windowsize %s 1024 700' % win
         ## ## sizecmd = 'xdotool windowsize %s 1280 1000' % win
         ## ## os.system(sizecmd)
-        maxcmd = "xdotool key ctrl+super+Up"
+        #maxcmd = "xdotool key ctrl+super+Up"
+        maxcmd = "xdotool key alt+F11"
         os.system(maxcmd)
         ecmd = "xdotool key ctrl+shift+E"
         time.sleep(0.1)
