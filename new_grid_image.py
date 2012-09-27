@@ -192,9 +192,16 @@ def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     date_str = date_str.replace('_','/')
     pdb.gimp_context_set_foreground((0,0,0))
     cn = get_course_number()
+    if cn == 106:
+        fmt = "IME %s\n%s"
+    else:
+        print('cn = %s' % cn)
+        print('type(cn) = %s' % type(cn))
+        fmt = "ME %s\n%s"
+    rhead = fmt % (cn, date_str)
     font_size_header_footer = 40
     text_layer = pdb.gimp_text_fontname(img, trans_layer, header_x, 10, \
-                                        "ME %s\n%s" % (cn, date_str), \
+                                        rhead , \
                                         0, True, font_size_header_footer, \
                                         1, "Sans")
 
@@ -1062,8 +1069,17 @@ def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
     pdb.gimp_context_set_foreground((0,0,0))
     cn = mydict['course_num']
     font_size_header_footer = 40
+
+    if cn == '106':
+        fmt = "IME %s\n%s"
+    else:
+        print('cn = %s' % cn)
+        print('type(cn) = %s' % type(cn))
+        fmt = "ME %s\n%s"
+    rhead = fmt % (cn, date_str)
+
     text_layer = pdb.gimp_text_fontname(img, trans_layer, header_x, 10, \
-                                        "ME %s\n%s" % (cn, date_str), \
+                                        rhead, \
                                         0, True, font_size_header_footer, \
                                         1, "Sans")
 
