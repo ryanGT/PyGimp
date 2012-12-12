@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, glob, re
+import os, glob, re, socket
 import time
 import math
 from gimpfu import *
@@ -128,6 +128,7 @@ def activate_notes_layer(img, name="Notes Layer"):
 
 
 def move_resize_window():#timg, tdrawable):
+    print('hello')
     if Linux:
         ## import subprocess
         ## p = subprocess.Popen(['xdotool','getactivewindow'], \
@@ -142,11 +143,14 @@ def move_resize_window():#timg, tdrawable):
         ## ## sizecmd = 'xdotool windowsize %s 1280 1000' % win
         ## ## os.system(sizecmd)
         #maxcmd = "xdotool key ctrl+super+Up"
-        maxcmd = "xdotool key alt+F11"
-        os.system(maxcmd)
-        ecmd = "xdotool key ctrl+shift+E"
-        time.sleep(0.1)
-        os.system(ecmd)
+        hostname = socket.gethostname()
+        print('hostname = ' + str(hostname))
+        if hostname == 'ryan-USB':
+            maxcmd = "xdotool key alt+F11"
+            os.system(maxcmd)
+            ecmd = "xdotool key ctrl+shift+E"
+            time.sleep(0.1)
+            os.system(ecmd)
 
 
 register(
@@ -993,7 +997,7 @@ def jump_to_first_slide(save=True, close=True):
     #save_pickle(mydict)
     W = tk_simple_dialog.reset_lecture_dialog()
     open_or_create_next_slide()
-    _ryan_init()    
+    #_ryan_init()    
     #open_or_create_slide(mydict)
 
 

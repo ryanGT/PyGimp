@@ -795,5 +795,128 @@ register("missy_bday_2012",
          missy_bday_2012)
 
 
+def find_height_given_width(filename, des_width):
+    img2 = pdb.gimp_file_load(filename, filename)
+    width = img2.width
+    height = img2.height
+    scale = des_width/width
+    des_height = scale*height
+    return des_height
+
+
+def Christmas2012A(img, drawable):
+    gap = 0.2
+
+    #mydir = '/home/ryan/ryan_personal/top_secret/Christmas_2012/'
+    mydir = '/home/ryan/ryan_personal/top_secret/Christmas_2012/black_and_whites'
+    #create new layer
+    total_w = 3600
+    total_h = total_w
+    new_layer = gimp.Layer(img, "New Image Layer", total_w, total_h, \
+                           RGBA_IMAGE, 100, NORMAL_MODE)
+    pdb.gimp_drawable_fill(new_layer, TRANSPARENT_FILL)
+    img.add_layer(new_layer)
+
+    small_pics = ['bw_0001.jpg', \
+                  'bw_0003.jpg', \
+                  'bw_0004.jpg', \
+                  'bw_0005.jpg', \
+                  'bw_0006.jpg', \
+                  'bw_0007.jpg', \
+                  ]
+
+
+    top_margin = 0.5
+    left_margin = (12.0 - (4.0+2.0+3.0+2*gap))/2.0
+
+    #gap = 0.25
+    N_small = len(small_pics)
+    #H1*N_small + gap*(N_small-1) = 12 - 2*top_margin
+    #solve for H1
+    h1 = ((12 - 2*top_margin) - gap*(N_small-1))/N_small
+    w1 = h1*1.5#assuming 6x4
+    
+    x1 = 0.75
+    y1 = top_margin
+    prevy = y1
+
+    redo_small = 0
+
+    if redo_small:
+        for i, name in enumerate(small_pics):
+            curpath = os.path.join(mydir, name)
+            if i > 0:
+                cury = prevy + h1 + gap
+            else:
+                cury = prevy
+
+            _my_select(img, x1, cury, w1, h1)
+            scale_and_paste_img_onto_selected_area(curpath, w1, h1, new_layer)
+            prevy = cury
+
+
+    #four bigger pics
+    #head kisses: DSC_3205bw_cropped.JPG
+    #Siah sleeping: D7K_000804_bw.JPG
+    #Grandpa Krauss: bw_0008_cropped.jpg
+    #Grandpa Dickson: bw_0009.jpg
+
+    #sleeping Siah
+    x5 = x1 + w1 + gap
+    w5 = 3.8
+    y5 = 1.7
+    fn5 = 'D7K_000804_bw.JPG'
+    path5 = os.path.join(mydir, fn5)
+    h5 = find_height_given_width(path5, w5)
+    _my_select(img, x5, y5, w5, h5)    
+    scale_and_paste_img_onto_selected_area(path5, w5, h5, new_layer)
+
+    #head kisses
+    x4 = x5
+    w4 = w5
+    fn4 = 'DSC_3205bw_cropped.JPG'
+    path4 = os.path.join(mydir, fn4)
+    h4 = find_height_given_width(path4, w4)    
+    y4 = y5 + h5 + gap
+    _my_select(img, x4, y4, w4, h4)    
+    scale_and_paste_img_onto_selected_area(path4, w4, h4, new_layer)
+
+    #Grandpa Dickson
+    x2 = x4 + w4 + gap
+    w2 = w4
+    path2 = os.path.join(mydir, 'bw_0009.jpg')
+    h2 = find_height_given_width(path2, w2)
+    y2 = y4 - (h2 - h4)
+    _my_select(img, x2, y2, w2, h2)    
+    scale_and_paste_img_onto_selected_area(path2, w2, h2, new_layer)                 
+
+    #Grandpa Krauss
+    x3 = x5
+    y3 = y4 + h4 + gap
+    w3 = 4.5
+    path3 = os.path.join(mydir, 'bw_0008_cropped.jpg')
+    h3 = find_height_given_width(path3, w3)
+    _my_select(img, x3, y3, w3, h3)    
+    scale_and_paste_img_onto_selected_area(path3, w3, h3, new_layer)
+
+
+
+    
+    return img
+
+
+register("Christmas2012A",
+         "Christmas 2012 A add pics",
+         "Christmas 2012 A add pics",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2012",
+         "<Image>/Filters/Ryan/scrapbooking/Digital/Christmas 2012 A",
+         "RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         Christmas2012A)
+
+
 
 main()
