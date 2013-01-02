@@ -21,9 +21,12 @@ import tk_msg_dialog
 
 #base = '/home/ryan/ryan_personal/top_secret/'
 #outbase = '/mnt/personal/pictures/moms_movie_60th_bday/1280_by_720'
-base = '/media/SILVERHD/moms_movie_60th_bday/'
-outbase = '/media/SILVERHD/moms_movie_60th_bday/1280_by_720/'
-mombase = '/media/SILVERHD/moms_movie_60th_bday/'
+base = '/home/ryan/ryan_personal/top_secret/Christmas_2012'
+outbase = os.path.join(base, '1280_by_720')
+
+if not os.path.exists(outbase):
+    os.mkdir(outbase)
+    
 
 def open_txt(initialdir=base, initialfile=None):
     filename = tkFileDialog.askopenfilename(initialfile=initialfile,
@@ -31,12 +34,12 @@ def open_txt(initialdir=base, initialfile=None):
                                             filetypes=txttypes)
     return filename
 
-#720p settings
+#ipad Mini settings (sort of 720p) - actual screensize is 1280 by 768
 vwidth = 1280
 vheight = 720
 var = float(vwidth)/float(vheight)
 
-outpath = '/home/ryan/ryan_personal/top_secret/1280_by_720/Jan'
+#outpath = '/home/ryan/ryan_personal/top_secret/1280_by_720/Jan'
 
 def adjust_img_size(img, drawable):
     w = img.width
@@ -206,7 +209,8 @@ def save(img, drawable):
     root, dir = os.path.split(folder)
     #outbase = '/home/ryan/ryan_personal/top_secret/1280_by_720/'
     #outbase = '/media/FA_ext3/ryan_personal/top_secret/1280_by_720/'
-    outbase = '/mnt/personal/pictures/moms_movie_60th_bday/1280_by_720'
+    outbase = '/home/ryan/ryan_personal/top_secret/Christmas_2012/1280_by_720'
+    
     outdir = os.path.join(outbase, dir)
     if not os.path.exists(outdir):
         os.mkdir(outdir)
@@ -291,7 +295,7 @@ register("process_many_movie_paths",
 
 def process_all_paths_in_folder():
     myfolder = tkFileDialog.askdirectory(initialfile=None, \
-                                         initialdir=mombase)
+                                         initialdir=base)
     print("myfolder = " + str(myfolder))
     pat = os.path.join(myfolder, "*.jpg")
     pat2 = os.path.join(myfolder, "*.JPG")
@@ -316,6 +320,65 @@ register("process_all_paths_in_folder",
          [],
          [(PF_IMAGE, 'img', 'the new image')],
          process_all_paths_in_folder)
+
+
+def proces_one_folder(pathin):
+    print("pathin = " + str(pathin))
+    pat = os.path.join(pathin, "*.jpg")
+    pat2 = os.path.join(pathin, "*.JPG")
+    files1 = glob.glob(pat)
+    files2 = glob.glob(pat2)
+    filt2 = [item for item in files2 if item not in files1]
+    mypaths = files1 + filt2
+    print('mypaths = ' + str(mypaths))
+    mypaths.sort()
+    for path in mypaths:
+        process_one_movie_path(path)
+
+    
+def process_all_2012_paths():
+    root = '/home/ryan/ryan_personal/top_secret/Christmas_2012/unsorted/2012/'
+    folders = ['Apr_2012', \
+               'Aug_2012', \
+               'Feb_2012', \
+               'Jan_2012', \
+               'July_2012', \
+               'June_2012', \
+               'Mar_2012', \
+               'May_2012', \
+               'Nov_2012', \
+               'Oct_2012', \
+               'Sept_2012',\
+               ]
+
+    for folder in folders:
+        curpath = os.path.join(root, folder)
+        proces_one_folder(curpath)
+        
+
+register("process_all_2012_paths",
+         "Process all 2012 paths",
+         "Process all 2012 paths",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2010",
+         "<Toolbox>/Ryan/movie/Process All 2012 Path",
+         "",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         process_all_2012_paths)
+
+## register("new_grid_image_2010",
+##          "A new image for class lectures",
+##          "A new image for class lectures",
+##          "Ryan Krauss",
+##          "Ryan Krauss",
+##          "2010",
+##          "<Toolbox>/Lecture/_New Grid Image",
+##          "",#RGB*, GRAY*",
+##          [],
+##          [(PF_IMAGE, 'img', 'the new image')],
+##          new_grid_image_2010)
 
 
 def open_txt_list(pathin=None):
@@ -371,9 +434,28 @@ def save_copy(img, savepath):
     pygimp_lecture_utils.save_flattened_copy(img, savepath)
 
 
+def find_highest_existing_title_filename():
+    outfolder = '/home/ryan/ryan_personal/top_secret/Christmas_2012/1280_by_720/intro/part2/'
+    import glob
+    pat = 'title_fadein_frame*.jpg'
+    full_pat = os.path.join(outfolder, pat)
+    all_frames = glob.glob(full_pat)
+    all_frames.sort()
+    if len(all_frames) == 0:
+        return 0
+    last_frame = all_frames[-1]
+    pne, ext = os.path.splitext(last_frame)
+    digit_str = pne[-4:]
+    return int(digit_str)
+
+def get_startfi():
+    N = find_highest_existing_title_filename()
+    return N+1
+
+    
 def build_title_filename(ind):
-    #outfolder = '/home/ryan/ryan_personal/top_secret/1280_by_720/intro'
-    outfolder = '/media/SILVERHD/moms_movie_60th_bday/1280_by_720/intro/title_fadein'
+    outfolder = '/home/ryan/ryan_personal/top_secret/Christmas_2012/1280_by_720/intro/part2/'
+    
     if not os.path.exists(outfolder):
         os.mkdir(outfolder)
     pat = 'title_fadein_frame%0.4i.jpg'
@@ -383,7 +465,7 @@ def build_title_filename(ind):
 
     
 def fade_in_layer(img, drawable):
-    startfi = 31
+    startfi = get_startfi()
     N = 30
     for i in range(N):
         savepath = build_title_filename(i+startfi)
@@ -406,7 +488,7 @@ register("fade_in_layer",
 
 
 def fade_out_layer(img, drawable):
-    startfi = 121
+    startfi = get_startfi()
     N = 30
     for i in range(N):
         savepath = build_title_filename(i+startfi)
@@ -431,7 +513,7 @@ register("fade_out_layer",
 
 def save_many_copies(img, drawable):
     """Save many copies of an image for movie making"""
-    startfi = 61 
+    startfi = get_startfi()
     N = 60
     for i in range(N):
         savepath = build_title_filename(i+startfi)
@@ -455,7 +537,7 @@ register("save_many_copies",
 
 def save_all_xcf_to_jpg():
     myfolder = tkFileDialog.askdirectory(initialfile=None, \
-                                         initialdir=mombase)
+                                         initialdir=base)
     print("myfolder = " + str(myfolder))
     pat = os.path.join(myfolder, "*.xcf")
     pat2 = os.path.join(myfolder, "*.XCF")

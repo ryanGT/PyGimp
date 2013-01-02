@@ -804,6 +804,15 @@ def find_height_given_width(filename, des_width):
     return des_height
 
 
+def find_width_given_height(filename, des_height):
+    img2 = pdb.gimp_file_load(filename, filename)
+    width = img2.width
+    height = img2.height
+    scale = des_height/height
+    des_width = scale*width
+    return des_width
+
+
 def Christmas2012A(img, drawable):
     gap = 0.2
 
@@ -916,6 +925,111 @@ register("Christmas2012A",
          [],
          [(PF_IMAGE, 'img', 'the new image')],
          Christmas2012A)
+
+
+def Christmas2012B(img, drawable):
+    gap = 0.2
+
+    #mydir = '/home/ryan/ryan_personal/top_secret/Christmas_2012/'
+    #mydir = '/home/ryan/ryan_personal/top_secret/Christmas_2012/black_and_whites'
+    mydir = '/home/ryan/ryan_personal/top_secret/Christmas_2012/Joshie_scrapbook_page'
+    
+    #create new layer
+    total_w = 3600
+    total_h = total_w
+    new_layer = gimp.Layer(img, "New Image Layer", total_w, total_h, \
+                           RGBA_IMAGE, 100, NORMAL_MODE)
+    pdb.gimp_drawable_fill(new_layer, TRANSPARENT_FILL)
+    img.add_layer(new_layer)
+
+
+    #four bigger pics
+    #head kisses: DSC_3205bw_cropped.JPG
+    #Siah sleeping: D7K_000804_bw.JPG
+    #Grandpa Krauss: bw_0008_cropped.jpg
+    #Grandpa Dickson: bw_0009.jpg
+
+    small_verts = ['Joshie_scrapbook_page_0002_3_by_6_running_playground.jpg', \
+                   'Joshie_scrapbook_page_0004_3_by_6.jpg', \
+                   'Joshie_scrapbook_page_0006_3_by_6_swing.jpg', \
+                   ]
+
+
+    top_margin = 0.5
+    N_small = len(small_verts)
+    #H1*N_small + gap*(N_small-1) = 12 - 2*top_margin
+    #solve for H1
+    h1 = ((12 - 2*top_margin) - gap*(N_small-1))/N_small
+    path1 = os.path.join(mydir, small_verts[0])
+    w1 = find_width_given_height(path1, h1)
+
+    x1 = 0.75
+    
+    y1 = top_margin
+    prevy = y1
+
+    redo_small = 1
+
+    if redo_small:
+        for i, name in enumerate(small_verts):
+            curpath = os.path.join(mydir, name)
+            if i > 0:
+                cury = prevy + h1 + gap
+            else:
+                cury = prevy
+
+            _my_select(img, x1, cury, w1, h1)
+            scale_and_paste_img_onto_selected_area(curpath, w1, h1, new_layer)
+            prevy = cury
+
+
+    #tricycle
+    x4 = x1 + w1 + gap
+    h4 = h1
+    y4 = cury
+    fn4 = 'Joshie_scrapbook_page_0010_tricycle_8_by_10_EZ_Imp.jpg'
+    path4 = os.path.join(mydir, fn4)
+    w4 = find_width_given_height(path4, h4)
+    _my_select(img, x4, y4, w4, h4)    
+    scale_and_paste_img_onto_selected_area(path4, w4, h4, new_layer)
+
+
+    #Easter chair
+    x5 = x4 + w4 + gap
+    h5 = h4
+    y5 = y4
+    fn5 = 'Joshie_scrapbook_page_0009.jpg'
+    path5 = os.path.join(mydir, fn5)
+    w5 = find_width_given_height(path5, h5)
+    _my_select(img, x5, y5, w5, h5)    
+    scale_and_paste_img_onto_selected_area(path5, w5, h5, new_layer)
+
+
+    #Papa and Joshie
+    x6 = x4
+    h6 = 4.5
+    y6 = y4 - gap - h6
+    fn6 = 'Joshie_scrapbook_page_0001_cropped_free.jpg'
+    path6 = os.path.join(mydir, fn6)
+    w6 = find_width_given_height(path6, h6)
+    _my_select(img, x6, y6, w6, h6)    
+    scale_and_paste_img_onto_selected_area(path6, w6, h6, new_layer)
+
+    
+    return img
+
+
+register("Christmas2012B",
+         "Christmas 2012 B add pics",
+         "Christmas 2012 B add pics",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2012",
+         "<Image>/Filters/Ryan/scrapbooking/Digital/Christmas 2012 B",
+         "RGB*, GRAY*",
+         [],
+         [(PF_IMAGE, 'img', 'the new image')],
+         Christmas2012B)
 
 
 
