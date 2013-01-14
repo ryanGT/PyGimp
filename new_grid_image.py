@@ -145,7 +145,7 @@ def move_resize_window():#timg, tdrawable):
         #maxcmd = "xdotool key ctrl+super+Up"
         hostname = socket.gethostname()
         print('hostname = ' + str(hostname))
-        if hostname == 'ryan-USB':
+        if hostname in ['ryan-USB','hpdv4']:
             maxcmd = "xdotool key alt+F11"
             os.system(maxcmd)
             ecmd = "xdotool key ctrl+shift+E"
