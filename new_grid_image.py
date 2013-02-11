@@ -145,11 +145,12 @@ def move_resize_window():#timg, tdrawable):
         #maxcmd = "xdotool key ctrl+super+Up"
         hostname = socket.gethostname()
         print('hostname = ' + str(hostname))
-        if hostname in ['ryan-USB','hpdv4']:
+        if hostname in ['ryan-USB','hpdv4','ryan-Latitude-D820']:
             maxcmd = "xdotool key alt+F11"
             os.system(maxcmd)
             ecmd = "xdotool key ctrl+shift+E"
-            time.sleep(0.1)
+            #time.sleep(0.1)
+            time.sleep(0.15)
             os.system(ecmd)
 
 
@@ -877,7 +878,7 @@ def check_for_slide(mydict):
 
 
 def open_outline_png(pngpath):
-    img = new_grid_image_2010()
+    img = new_grid_image_2010(outline=True)
     floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
                                    y_offset=25)
     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
@@ -1040,7 +1041,8 @@ register("jump_to_last_slide",
          jump_to_last_slide)
 
 
-def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
+def new_grid_image_2010(footer='', footer_x=1920, \
+                        outline=False):#timg, tdrawable):
     #print('in new_grid_image_2010')
     width = 2000
     #height = 1600
@@ -1075,19 +1077,21 @@ def new_grid_image_2010(footer='', footer_x=1920):#timg, tdrawable):
     font_size_header_footer = 40
 
     if cn == '106':
-        fmt = "IME %s\n%s"
+        fmt = "IME %s; %s"
     else:
         print('cn = %s' % cn)
         print('type(cn) = %s' % type(cn))
-        fmt = "ME %s\n%s"
-    rhead = fmt % (cn, date_str)
+        fmt = "ME %s; %s"
 
-    text_layer = pdb.gimp_text_fontname(img, trans_layer, header_x, 10, \
-                                        rhead, \
-                                        0, True, font_size_header_footer, \
-                                        1, "Sans")
+    if not outline:
+        lfoot = fmt % (cn, date_str)
 
-    pdb.gimp_floating_sel_anchor(text_layer)
+        text_layer = pdb.gimp_text_fontname(img, trans_layer, 50, footer_y, \
+                                            lfoot, \
+                                            0, True, font_size_header_footer, \
+                                            1, "Sans")
+
+        pdb.gimp_floating_sel_anchor(text_layer)
 
     text_layer2 = pdb.gimp_text_fontname(img, trans_layer, footer_x, footer_y, \
                                          footer+str(slide_num), \

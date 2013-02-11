@@ -21,8 +21,10 @@ import tk_msg_dialog
 
 #base = '/home/ryan/ryan_personal/top_secret/'
 #outbase = '/mnt/personal/pictures/moms_movie_60th_bday/1280_by_720'
-base = '/home/ryan/ryan_personal/top_secret/Christmas_2012'
-outbase = os.path.join(base, '1280_by_720')
+#base = '/home/ryan/ryan_personal/top_secret/Christmas_2012'
+#outbase = os.path.join(base, '1280_by_720')
+base = '/home/ryan/ryan_personal/'
+outbase = base
 
 if not os.path.exists(outbase):
     os.mkdir(outbase)
