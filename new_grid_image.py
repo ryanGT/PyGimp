@@ -892,6 +892,14 @@ def open_outline_png(pngpath):
     #pdb.gimp_selection_none(img)
         
 
+def decrement_outline_slide_num():
+    mydict = open_pickle()
+    cur_outline_num = mydict['outline_slide']
+    print('cur_outline_num = ' + str(cur_outline_num))
+    new_dec_num = cur_outline_num - 1
+    mydict['outline_slide'] = new_dec_num
+    save_pickle(mydict)
+    
 
 def open_or_create_next_slide(save=True, close=True, force_no_outline=False):
     if save or close:
@@ -1039,6 +1047,19 @@ register("jump_to_last_slide",
          [],
          [],
          jump_to_last_slide)
+
+register("decrement_outline_slide_num",
+         "Decrement Outline Slide Number",
+         "Decrement Outline Slide Number",
+         "Ryan Krauss",
+         "Ryan Krauss",
+         "2013",
+         "<Toolbox>/Lecture/decrement outline slide num",
+         "",#RGB*, GRAY*",
+         [],
+         [],
+         decrement_outline_slide_num)
+
 
 
 def new_grid_image_2010(footer='', footer_x=1920, \
