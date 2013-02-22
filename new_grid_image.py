@@ -453,6 +453,13 @@ def open_jpg(initialdir=None, initialfile=None):
     return filename
 
 
+def open_image(initialdir=None, initialfile=None):
+    filename = tkFileDialog.askopenfilename(initialfile=initialfile,
+                                            initialdir=initialdir,
+                                            filetypes=filetypes)
+    return filename
+
+
 def save_it():
     filename = tkFileDialog.askopenfilename()
     return filename
@@ -846,10 +853,17 @@ def build_slide_path(mydict):
 
 
 def build_next_outline_path(mydict):
-    pat = 'outline_%0.4i.png'
+    print('mydict = ' + str(mydict))
+    if mydict.has_key('outline_pat'):
+        pat = mydict['outline_pat']
+    else:
+        pat = 'outline_%0.4i.png'
     ind = mydict['outline_slide'] + 1
     filename = pat % ind
-    exclude_dir = os.path.join(mydict['lecture_path'], 'exclude')
+    if mydict.has_key('outline_dir'):
+        exclude_dir = mydict['outline_dir']
+    else:
+        exclude_dir = os.path.join(mydict['lecture_path'], 'exclude')
     filepath = os.path.join(exclude_dir, filename)
     return filepath
 
@@ -1543,6 +1557,50 @@ register("stroke_active_path",
     
 #############################################
 
+
+#####################################
+#
+# Switching to pre-printed lecture notes
+# for a new book chapter or topic
+#
+#####################################
+def open_new_outline_slide():
+    #This doesn't work perfectly.  It seems like it opens pngs instead
+    #of xcfs (which makes sense if you look at get_slide_num_filename)
+    outline_path = open_image()
+    print('outline_path = ' + outline_path)
+    folder, fn = os.path.split(outline_path)
+    fno, ext = os.path.splitext(fn)
+    p = re.compile('^(.*)_([0-9]+)$')
+    q = p.match(fno)
+    if q is None:
+        print('filename did not match pattern ending in 4 digits:' + fn)
+    part1 = q.group(1)
+    num_str = q.group(2)
+    assert len(num_str) == 4, "filename did not end in exactly 4 digits:" + num_str
+    pat = part1 + '_%0.4i' + ext
+    outline_num = int(num_str)
+    mydict = open_pickle()
+    mydict['outline_slide'] = outline_num - 1
+    mydict['outline_pat'] = pat
+    mydict['outline_dir'] = folder
+    save_pickle(mydict)
+    print('mydict = ' + str(mydict))
+    open_or_create_next_slide()
+
+
+register(
+        "open_new_outline_slide",
+        "Open new outline slide",
+        "Open new outline slide",
+        "Ryan Krauss",
+        "Ryan Krauss",
+        "2013",
+        "<Toolbox>/Lecture/New Outline Slide",
+        "",
+        [],
+        [],
+        open_new_outline_slide)
 
 ##---------------------##
 #
