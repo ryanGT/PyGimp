@@ -893,8 +893,9 @@ def check_for_slide(mydict):
 
 def open_outline_png(pngpath):
     img = new_grid_image_2010(outline=True)
-    floating_sel = copy_png_to_img(pngpath, img, x_offset=25, \
-                                   y_offset=25)
+    floating_sel = copy_png_to_img(pngpath, img, x_offset=5, \
+                                   y_offset=5, autocrop=False, \
+                                   x_margin=0)
     if top_layer_is_TEMP(img, 1) or top_layer_is_Latex(img, 1):
         pdb.gimp_floating_sel_anchor(floating_sel)
     if top_layer_is_Latex(img):
@@ -1112,21 +1113,23 @@ def new_grid_image_2010(footer='', footer_x=1920, \
     font_size_header_footer = 40
 
     if cn == '106':
-        fmt = "IME %s; %s"
+        fmt = "IME %s\n%s"
     else:
         print('cn = %s' % cn)
         print('type(cn) = %s' % type(cn))
-        fmt = "ME %s; %s"
+        fmt = "ME %s\n%s"
 
-    if not outline:
-        lfoot = fmt % (cn, date_str)
+    #if not outline:
+    date_stamp = fmt % (cn, date_str)
 
-        text_layer = pdb.gimp_text_fontname(img, trans_layer, 50, footer_y, \
-                                            lfoot, \
-                                            0, True, font_size_header_footer, \
-                                            1, "Sans")
+    text_layer = pdb.gimp_text_fontname(img, trans_layer, \
+                                        header_x, 10, \
+                                        date_stamp, \
+                                        0, \
+                                        True, font_size_header_footer, \
+                                        1, "Sans")
 
-        pdb.gimp_floating_sel_anchor(text_layer)
+    pdb.gimp_floating_sel_anchor(text_layer)
 
     text_layer2 = pdb.gimp_text_fontname(img, trans_layer, footer_x, footer_y, \
                                          footer+str(slide_num), \
