@@ -177,7 +177,6 @@ register(
 
 def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     width = 2000
-    #height = 1600
     height = 1300
     header_x = 1780
     footer_y = height - 80
