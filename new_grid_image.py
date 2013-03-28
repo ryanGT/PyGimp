@@ -7,7 +7,8 @@ from gimpfu import *
 import rwkos
 import pdb as Pdb
 
-#import vibrations_gimp
+import vibrations_gimp
+
 
 from gimp_copy_utils import *
 
@@ -173,6 +174,7 @@ register(
         menu="<Toolbox>/Xtns/Languages/Ryan")
 
 
+
 def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
     width = 2000
     #height = 1600
@@ -249,7 +251,6 @@ def new_grid_image(pat=None, footer='', footer_x=1920):#timg, tdrawable):
 ##          [(PF_IMAGE, 'img', 'the new image')],
 ##          new_grid_image)
 
-
 register("set_lecture_path", \
          "Set the path for todays lectures", \
          "Set the path for todays lectures saving it in a pkl", \
@@ -263,7 +264,7 @@ register("set_lecture_path", \
          set_lecture_path, \
          menu="<Toolbox>/Xtns/Languages/Ryan/2009")
 
-         
+
 import tkFileDialog
 filetypes = [('png files', '*.png'), ('jpg files', '*.jpg'),\
              ('all files', '.*')]
@@ -393,7 +394,6 @@ register(
         [],
         blue_brush,
         menu="<Toolbox>/Lecture/Brushes")
-
 
 
 def find_if_open(imgname):
@@ -720,7 +720,6 @@ register(
         [],
         my_close,
         menu="<Image>/Filters/Ryan/2009")
-
     
     
 def save_quiz(img, drawable):
@@ -977,7 +976,6 @@ def open_outline_png(pngpath):
 
     gimp.displays_flush()
     #pdb.gimp_image_clean_all(img)
-
     #pdb.gimp_selection_none(img)
         
 
@@ -1139,6 +1137,7 @@ register("jump_to_last_slide",
          jump_to_last_slide,
          menu="<Toolbox>/Lecture/Jump")
 
+
 register("decrement_outline_slide_num",
          "Decrement Outline Slide Number",
          "Decrement Outline Slide Number",
@@ -1276,7 +1275,6 @@ register("open_or_create_next_slide_no_close",
          [],#(PF_IMAGE, 'img', 'the next slide')],
          open_or_create_next_slide_no_close,
          menu="<Toolbox>/Lecture")
-
 
 
 
@@ -1464,6 +1462,7 @@ register(
         show_pickle,
         menu="<Toolbox>/Lecture")
 
+
 def edit_pickle():
     """Load and display the current lecture pickle in a
     dialog that allows editting the values"""
@@ -1483,6 +1482,7 @@ register(
         [],
         edit_pickle,
         menu="<Toolbox>/Lecture")
+
 
 #############################################
 #
@@ -1553,7 +1553,6 @@ def get_brush_dynamics():
     return brush_str
 
 
-#<Toolbox>/Lecture/Brushes/Dynamics
 register(
         "get_brush_dynamics",
         "Get the brush dynamics.",
@@ -1589,6 +1588,7 @@ register("set_pencil_ryan_dynamics",
          [],
          set_pencil_ryan_dynamics,
          menu="<Toolbox>/Lecture/Brushes/Dynamics")
+
 
 def set_pen_generic_dynamics():
     _set_dynamics("Pen Generic")
@@ -1633,6 +1633,7 @@ register("toggle_pen_and_pencil_dynamics",
          toggle_pen_and_pencil_dynamics,
          menu="<Toolbox>/Lecture/Brushes/Dynamics")
 
+
 def stroke_active_path(img, drawable):
     vectors = pdb.gimp_image_get_active_vectors(img)
     pdb.gimp_edit_stroke_vectors(drawable, vectors)
@@ -1650,6 +1651,7 @@ register("stroke_active_path",
          [],
          stroke_active_path,
          menu="<Image>/Filters/Ryan/Lecture")
+
     
 #############################################
 
@@ -1698,6 +1700,7 @@ register(
         [],
         open_new_outline_slide,
         menu="<Toolbox>/Lecture")
+
 
 ##---------------------##
 #

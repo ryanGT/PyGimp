@@ -7,6 +7,7 @@ from gimpfu import *
 home_dir = os.path.expanduser('~')
 autosave_dir = os.path.join(home_dir,'gimpautosave')
 
+
 if not os.path.exists(autosave_dir):
     os.mkdir(autosave_dir)
 
