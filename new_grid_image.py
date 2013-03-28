@@ -463,7 +463,7 @@ register(
         "Ryan Krauss",
         "2009",
         "Get Brush",
-        "",#RGB*, GRAY*",
+        "",
         [],
         [],
         get_brush,
